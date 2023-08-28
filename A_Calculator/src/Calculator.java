@@ -3,11 +3,13 @@ public class Calculator {
     int ip;
     Stack stack;
 
-    public Calculator(Item[] expr) {
+    public Calculator(Item[] expr, boolean dynamic) {
         this.expr = expr;
         this.ip = 0;
-        //this.stack = new Dynamic();
-        this.stack = new Static();
+        if(dynamic)
+            this.stack = new Dynamic(4);
+        else
+            this.stack = new Static(1024);
     }
 
     public int run() {
@@ -48,6 +50,7 @@ public class Calculator {
             }
 
             case VALUE: {
+                stack.push(nxt.getValue());
                 break;
             }
         }
