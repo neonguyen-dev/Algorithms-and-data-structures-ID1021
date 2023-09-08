@@ -7,13 +7,20 @@ public class Static extends Stack{
         pointer = 0;
     }
 
-    public int pop(){
-        int value = stack[--pointer];
+    public int pop() throws Exception{
+        pointer--;
+        if(pointer < 0){
+            throw new Exception("Stack Underflow");
+        }
+        int value = stack[pointer];
         stack[pointer] = 0; 
         return value;
     }
 
-    public void push(int value){
+    public void push(int value) throws Exception{
+        if(pointer >= stack.length){
+            throw new Exception("Stack Overflow");
+        }
         stack[pointer++] = value;
     }
 }

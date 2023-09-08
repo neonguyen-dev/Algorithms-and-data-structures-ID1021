@@ -1,22 +1,18 @@
 public class App {
     public static void main(String[] args) throws Exception {
-        int[] sizes = { 100, 200, 400, 800, 1600, 3200 };
-
         bench(1000);
 
-        for (int i = 0; i < sizes.length; i++) {
-            double t = bench(sizes[i]);
-            System.out.println(sizes[i] + ": " + t + " µs");
-        }
+        double t = bench(1000);
+        System.out.println("Time for pushing and popping a 1000 elements: " + t + " ns");
     }
 
-    public static double bench(int n) {
-        int turns = 1000;
+    public static double bench(int n) throws Exception {
+        int turns = 100;
 
         double min = Double.POSITIVE_INFINITY;
 
         for (int i = 0; i < turns; i++) {
-            double t = sampleProgram(n);
+            double t = pushAndPop(n, true);
             if (t < min) {
                 min = t;
             }
@@ -25,7 +21,27 @@ public class App {
         return min;
     }
 
-    public static double sampleProgram(int n) {
+    public static double pushAndPop(int n, boolean dynamic) throws Exception {
+        Stack stack;
+
+        if (dynamic)
+            stack = new Dynamic(4);
+        else
+            stack = new Static(1024);
+
+        long startTime = System.nanoTime();
+        for (int i = 0; i < n; i++) {
+            stack.push(i);
+        }
+        for (int i = 0; i < n; i++) {
+            stack.pop();
+        }
+        long endTime = System.nanoTime();
+
+        return (endTime - startTime);
+    }
+
+    public static double sampleProgram(int n) throws Exception {
         Item[] expr = {
                 // Item.Value(10),
                 // Item.Value(2),
@@ -64,11 +80,11 @@ public class App {
                 Item.Mul(),
                 Item.Add()
         };
-        
+
         long startTime = System.nanoTime();
         for (int i = 0; i < n; i++) {
-            //Change boolean to switch between static/dynamic
-            Calculator calc = new Calculator(expr, false);
+            // Change boolean to switch between static/dynamic
+            Calculator calc = new Calculator(expr, true);
             int res = calc.run();
             // System.out.println("Calculator: res = " + res);
         }

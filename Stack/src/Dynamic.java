@@ -7,26 +7,32 @@ public class Dynamic extends Stack {
         pointer = 0;
     }
 
-    public int pop(){
-        if(pointer == stack.length/2){
-            int[] newStack = new int[stack.length/2];
-            for (int i = 0; i < stack.length/2; i++) {
-                newStack[i] = stack[i];
-            }
-            stack = newStack;
+    public int pop() throws Exception{
+        pointer--;
+        if(pointer < 0){
+            throw new Exception("Stack Underflow");
         }
-        int value = stack[--pointer];
+
+        if(pointer == (stack.length/4)){
+            int[] tempStack = new int[stack.length/2];
+            for (int i = 0; i < stack.length/2; i++) {
+                tempStack[i] = stack[i];
+            }
+            stack = tempStack;
+        }
+        
+        int value = stack[pointer];
         stack[pointer] = 0; 
         return value;
     }
 
     public void push(int value){
-        if(pointer == stack.length - 1){
-            int[] newStack = new int[stack.length*2];
+        if(pointer == stack.length){
+            int[] tempStack = new int[stack.length*2];
             for (int i = 0; i < stack.length; i++) {
-                newStack[i] = stack[i];
+                tempStack[i] = stack[i];
             }
-            stack = newStack;
+            stack = tempStack;
         }
         stack[pointer++] = value;
     }

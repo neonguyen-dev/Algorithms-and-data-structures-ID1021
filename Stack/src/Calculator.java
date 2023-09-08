@@ -12,14 +12,14 @@ public class Calculator {
             this.stack = new Static(1024);
     }
 
-    public int run() {
+    public int run() throws Exception {
         while (ip < expr.length) {
             step();
         }
         return stack.pop();
     }
 
-    public void step() {
+    public void step() throws Exception {
         Item nxt = expr[ip++];
         switch (nxt.type()) {
             case ADD: {
