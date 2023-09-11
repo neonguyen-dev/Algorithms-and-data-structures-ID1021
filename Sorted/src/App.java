@@ -2,8 +2,8 @@ import java.util.Random;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        int[] sizes = { 100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1600 };
-        int turns = 10;
+        int[] sizes = { 100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600 };
+        int turns = 100;
 
         for (int i = 0; i < sizes.length; i++) {
             int[] array1 = sorted(sizes[i]);
@@ -62,7 +62,7 @@ public class App {
                     }
                 }
             }
-            System.err.println("Better version " + sizes[i] + " elements: " + min / 1000000 + " microseconds\n");
+            System.out.println("Better version " + sizes[i] + " elements: " + min / 1000 + " microseconds\n");
         }
 
     }
