@@ -49,4 +49,25 @@ public class App {
             array[j + 1] = key;
         }
     }
+
+    private static void merge(int[] org, int[] aux, int lo, int mid, int hi) {
+        // copy all items from lo to hi from org to aux
+        for (int i = lo; i < hi; i++) {
+            aux[i] = org[i];
+        }
+        // let's do the merging
+        int i = lo; // the index in the first part
+        int j = mid+1; // the index in the second part
+        // for all indices from lo to hi
+        for ( int k = lo; k <= hi; k++) {
+        // if i is greater than mid then
+        // move the j'th item to the org array, update j
+        // else if j is greate than hi then
+        // move the i'th item to the org array, update i
+        // else if the i'th item is smaller than the j¨ath item,
+        // move the i'th item to the org array, update i
+        // else
+        // move the j'th item to the org array, update j
+        }
+        }        
 }
