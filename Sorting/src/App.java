@@ -2,10 +2,55 @@ import java.util.Random;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        int[] array = randomize_array(1000);
+        int[] sizes = {100,200,400,800,1600,3200,6400};
+        int turns = 100;
+        for (int i = 0; i < sizes.length; i++) {
+            int[] array = randomize_array(sizes[i]);
+            int[] tempArray = array.clone();
+
+            double min = Double.POSITIVE_INFINITY;
+
+            for (int j = 0; j < turns; j++) {
+                long startTime = System.nanoTime();
+                section_sort(tempArray);
+                long endTime = System.nanoTime();
+                if ((endTime - startTime) < min) {
+                    min = (endTime - startTime);
+                }
+                tempArray = array.clone();
+            }
+
+            System.out.println("Section sort " + sizes[i] + " elements: " + min / 1000 + " microseconds");
+
+            min = Double.POSITIVE_INFINITY;
+            for (int j = 0; j < turns; j++) {
+                long startTime = System.nanoTime();
+                insertion_sort(tempArray);
+                long endTime = System.nanoTime();
+                if ((endTime - startTime) < min) {
+                    min = (endTime - startTime);
+                }
+                tempArray = array.clone();
+            }
+
+            System.out.println("Insertion sort " + sizes[i] + " elements: " + min / 1000 + " microseconds");
+
+            min = Double.POSITIVE_INFINITY;
+            for (int j = 0; j < turns; j++) {
+                long startTime = System.nanoTime();
+                merge_sort(tempArray);
+                long endTime = System.nanoTime();
+                if ((endTime - startTime) < min) {
+                    min = (endTime - startTime);
+                }
+                tempArray = array.clone();
+            }
+
+            System.out.println("Merge sort " + sizes[i] + " elements: " + min / 1000 + " microseconds\n");
+        }
         //section_sort(array);
-        insertion_sort(array);
-        System.out.println("sorted");
+        //insertion_sort(array);
+        //merge_sort(array);
     }
 
     public static int[] randomize_array(int size) {
@@ -52,22 +97,57 @@ public class App {
 
     private static void merge(int[] org, int[] aux, int lo, int mid, int hi) {
         // copy all items from lo to hi from org to aux
-        for (int i = lo; i < hi; i++) {
+        for (int i = lo; i <= hi; i++) {
             aux[i] = org[i];
         }
         // let's do the merging
         int i = lo; // the index in the first part
-        int j = mid+1; // the index in the second part
+        int j = mid + 1; // the index in the second part
         // for all indices from lo to hi
-        for ( int k = lo; k <= hi; k++) {
-        // if i is greater than mid then
-        // move the j'th item to the org array, update j
-        // else if j is greate than hi then
-        // move the i'th item to the org array, update i
-        // else if the i'th item is smaller than the j¨ath item,
-        // move the i'th item to the org array, update i
-        // else
-        // move the j'th item to the org array, update j
+        for (int k = lo; k <= hi; k++) {
+            // if i is greater than mid then
+            if (i > mid) {
+                // move the j'th item to the org array, update j
+                org[k] = aux[j];
+                j++;
+            }
+            // else if j is greate than hi then
+            else if (j > hi) {
+                // move the i'th item to the org array, update i
+                org[k] = aux[i];
+                i++;
+            }
+            // else if the i'th item is smaller than the j¨ath item,
+            else if (aux[i] < aux[j]) {
+                // move the i'th item to the org array, update i
+                org[k] = aux[i];
+                i++;
+            }
+            // else
+            else {
+                // move the j'th item to the org array, update j
+                org[k] = aux[j];
+                j++;
+            }
         }
-        }        
+    }
+
+    private static void merge_sort(int[] org, int[] aux, int lo, int hi) {
+        if (lo != hi) {
+            int mid = (lo + hi) / 2;
+            // sort the items from lo to mid
+            merge_sort(org, aux, lo, mid);
+            // sort the items from mid+1 to hi
+            merge_sort(org, aux, mid + 1, hi);
+            // merge the two sections using the additional array
+            merge(org, aux, lo, mid, hi);
+        }
+    }
+
+    public static void merge_sort(int[] org) {
+        if (org.length == 0)
+            return;
+        int[] aux = new int[org.length];
+        merge_sort(org, aux, 0, org.length - 1);
+    }
 }
