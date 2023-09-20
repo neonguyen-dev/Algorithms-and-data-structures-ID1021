@@ -2,7 +2,7 @@ import java.util.Random;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        int[] sizes = {100,200,400,800,1600,3200,6400};
+        int[] sizes = {100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600};
         int turns = 100;
         for (int i = 0; i < sizes.length; i++) {
             int[] array = randomize_array(sizes[i]);
