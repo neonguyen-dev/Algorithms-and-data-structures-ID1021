@@ -1,3 +1,5 @@
+import java.util.Random;
+
 public class App {
     public static void main(String[] args) throws Exception {
 
@@ -23,6 +25,42 @@ public class App {
             benchArrayAppend(sizes[i]);
             System.out.println(sizes[i] + " elements: " + benchArrayAppend(sizes[i]) / 1000 + " microseconds");
         }
+
+        Random rand = new Random();
+        int turns = 100;
+
+        for (int i = 0; i < sizes.length; i++) {
+            Node[] nodes = new Node[sizes[i]];
+            LinkedList a = LinkedList.createLinkedList(sizes[i]);
+
+            Node node = a.head;
+            for (int j = 0; j < sizes[i]; j++) {
+                nodes[j] = node;
+                node = node.next;
+            }
+
+            int[] randomIndices = new int[1000];
+            for (int j = 0; j < randomIndices.length; j++) {
+                randomIndices[j] = rand.nextInt(sizes[i] - 1);
+            }
+
+            double min = Double.POSITIVE_INFINITY;
+
+            for (int j = 0; j < turns; j++) {
+                long startTime = System.nanoTime();
+                for (int k = 0; k < randomIndices.length; k++) {
+                    a.unlink(nodes[randomIndices[k]]);
+                    a.insert(nodes[randomIndices[k]]);
+                }
+                long endTime = System.nanoTime();
+
+                if(min > (endTime - startTime)){
+                    min = (endTime - startTime);
+                }
+            }
+            System.out.println(sizes[i] + " " + min/1000);
+        }
+
     }
 
     public static double benchDynamicToStatic(int n) {
@@ -69,17 +107,17 @@ public class App {
         for (int i = 0; i < turns; i++) {
             int[] fixedArray = new int[100];
             int[] dynamicArray = new int[n];
-            int[] temp = new int[100 + n];
-
+            
             for (int j = 0; j < fixedArray.length; j++) {
                 fixedArray[j] = j;
             }
-
+            
             for (int j = 0; j < dynamicArray.length; j++) {
                 dynamicArray[j] = j;
             }
-
+            
             long startTime = System.nanoTime();
+            int[] temp = new int[100 + n];
             for (int j = 0; j < fixedArray.length; j++) {
                 temp[j] = fixedArray[j];
             }

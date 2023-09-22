@@ -121,4 +121,28 @@ public class LinkedList {
         node.next = null;
         return temp;
     }
+
+    public void unlink(Node node){
+        if(head == node){
+            head = node.next;
+            node.next = null;
+            return;
+        }
+        
+        Node current = head;
+        while(current.next != null){
+            if(current.next == node){
+                Node unlinkedNode = current.next;
+                current.next = current.next.next;
+                unlinkedNode.next = null;
+                return;
+            }
+            current = current.next; 
+        }
+    }
+
+    public void insert(Node node){
+        node.next = head;
+        head = node;
+    }
 }

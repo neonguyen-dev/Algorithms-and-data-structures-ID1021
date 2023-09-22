@@ -85,14 +85,45 @@ public class DoublyLinkedList {
 
         while (node.next != null) {
             if(node.next == item){
+                Node temp = node.next;
                 node.next = node.next.next;
-                node.next.prev = node;    
+                node.next.prev = node;
+                temp.next = null;
+                temp.prev = null;    
                 return;
             }
             node = node.next;
         }
     }
+
     public void unlink(Node node){
-        
+        if(node.prev == null && node.next == null){
+            head = null;
+        }
+
+        else if(node.prev == null){
+            head = node.next;
+            head.prev = null;
+        }
+
+        else if(node.next == null){
+            node.prev.next = null;
+        }
+
+        else{
+            node.next.prev = node.prev;
+            node.prev.next = node.next;
+            node = null;
+        }
+    }
+
+    public void insert(Node node){
+        if(head == null){
+            return;
+        }
+        node.next = head;
+        head.prev = node;
+        node.prev = null;
+        head = node;
     }
 }
