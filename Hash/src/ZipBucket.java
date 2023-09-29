@@ -32,17 +32,12 @@ public class ZipBucket {
 
                 int hashKey = code % mod;
 
-                if(data[hashKey] == null){
-                    data[hashKey] = new Node[]{tempNode};
+                Node[] tempArray = new Node[data[hashKey].length + 1];
+                for (int j = 0; j < data[hashKey].length - 1; j++) {
+                    tempArray[j] = data[hashKey][j];
                 }
-                else{
-                    Node[] tempArray = new Node[data[hashKey].length + 1];
-                    for (int j = 0; j < data[hashKey].length - 1; j++) {
-                        tempArray[j] = data[hashKey][j];
-                    }
-                    tempArray[tempArray.length - 1] = tempNode;
-                    data[hashKey] = tempArray;
-                }
+                tempArray[tempArray.length - 1] = tempNode;
+                data[hashKey] = tempArray;
 
                 i++;
             }
@@ -56,7 +51,7 @@ public class ZipBucket {
         int zipCode = Integer.valueOf(code.replaceAll("\\s", ""));
         int hashKey = zipCode % mod;
         for (int i = 0; i < data[hashKey].length; i++) {
-            if(zipCode == data[hashKey][i].code){
+            if (zipCode == data[hashKey][i].code) {
                 return data[hashKey][i];
             }
         }
