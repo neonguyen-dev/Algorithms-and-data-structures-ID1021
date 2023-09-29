@@ -1,5 +1,11 @@
-public class BinaryTree {
+import java.util.Iterator;
+
+public class BinaryTree implements Iterable<Integer>{
     Node root;
+
+    public Iterator<Integer> iterator(){
+        return new TreeIterator(root);
+    }
 
     public BinaryTree(){
         root = null;
@@ -16,15 +22,15 @@ public class BinaryTree {
         Node current = root;
         
         while(current != null){
-            if(current.key == key){
+            if(current.key.intValue() == key.intValue()){
                 return current.value;
             }
             
-            if(current.key > key){
+            if(current.key.intValue() > key.intValue()){
                 current = current.left;
             }
 
-            else if(current.key < key){
+            else if(current.key.intValue() < key.intValue()){
                 current = current.right;
             }
         }
