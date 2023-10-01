@@ -1,17 +1,28 @@
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
 public class App {
     public static void main(String[] args) throws Exception {
+        String file = "kelly.txt";
         Trie trie = new Trie();
-        String characters = "abcdefghijklmnoprstuvxyzåäö";
-        String word = "toffel";
-        String key = "752224";
-        
-        trie.add(word);
-        String[] words = trie.search(key, "", trie.root);
-        System.out.println(words[0]);
+        List<String> words = Files.readAllLines(Paths.get(file));
 
-        for (int i = 0; i < characters.length(); i++) {
-            //System.out.println(trie.letterToInt(characters.charAt(i)));
-            System.out.println(trie.intToLetter(i));
+        for (String string : words) {
+            trie.add(string.toLowerCase().replaceAll("\\s", ""));
         }
+
+        System.out.println();
+    }
+
+    private static String[] addWord(String[] array, String word){
+        String[] temp = new String[array.length + 1];
+        
+        for (int i = 0; i < temp.length; i++) {
+            temp[i] = array[i];
+        }
+        temp[array.length] = word;
+
+        return temp;
     }
 }

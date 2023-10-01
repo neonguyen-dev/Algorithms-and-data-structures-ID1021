@@ -6,7 +6,6 @@ public class Trie {
     }
 
     public void add(String key) {
-        
         Node current = root;
 
         for (int i = 0; i < key.length(); i++) {
@@ -20,33 +19,35 @@ public class Trie {
     }
 
     public String[] search(String keySequence, String path, Node current) {
-        String[] words = new String[0];
-        search(current, keySequence, path, words);
+        String[] words = search(current, keySequence, path, new String[0]);
         return words;
     }
 
-    private void search(Node current, String key, String path, String[] words){
+    private String[] search(Node current, String key, String path, String[] words){
         if(current == null){
-            return;
+            return words;
         }
-
-        if(path.length() == key.length()){
-            return;
-        }
-
+        
         if(current.word){
             String temp[] = new String[words.length + 1];
             for (int i = 0; i < words.length; i++) {
                 temp[i] = words[i];
             }
-            temp[words.length - 1] = path;
+            temp[words.length] = path;
             words = temp;
         }
+        
+        if(path.length() == key.length()){
+            return words;
+        }
+        
 
         int index = keyToIndex(key.charAt(path.length()));
-        search(current.next[index * 3], key, path + intToLetter(index * 3), words);
-        search(current.next[index * 3 + 1], key, path + intToLetter(index * 3 + 1), words);
-        search(current.next[index * 3 + 2], key, path + intToLetter(index * 3 + 2), words);
+        words = search(current.next[index * 3], key, path + intToLetter(index * 3), words);
+        words = search(current.next[index * 3 + 1], key, path + intToLetter(index * 3 + 1), words);
+        words = search(current.next[index * 3 + 2], key, path + intToLetter(index * 3 + 2), words);
+        
+        return words;
     }
 
     public Integer letterToInt(char letter) {
