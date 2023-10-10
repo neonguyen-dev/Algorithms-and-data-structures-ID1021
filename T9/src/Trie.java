@@ -18,8 +18,8 @@ public class Trie {
         current.word = true;
     }
 
-    public String[] search(String keySequence, String path, Node current) {
-        String[] words = search(current, keySequence, path, new String[0]);
+    public String[] search(String keySequence) {
+        String[] words = search(root, keySequence, "", new String[0]);
         return words;
     }
 
@@ -105,4 +105,11 @@ public class Trie {
         return null;
     }
 
+    public String characterToKey(String character){
+        String temp = "";
+        for (int i = 0; i < character.length(); i++) {
+            temp += (this.letterToInt(character.charAt(i)) / 3) + 1;
+        }
+        return temp;
+    }
 }

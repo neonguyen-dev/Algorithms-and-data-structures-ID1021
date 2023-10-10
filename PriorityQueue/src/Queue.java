@@ -51,11 +51,6 @@ public class Queue {
 
         temp.next = current.next;
         current.next = temp;
-
-        while(current.next != null){
-            current = current.next;
-        }
-        tail = current;
     }
 
     public Integer remove() {

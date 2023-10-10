@@ -1,119 +1,167 @@
 public class Heap {
     public class Node {
-        public Integer priority;
-        public Node left, right;
-    
+        Integer priority;
+        Node left, right;
+        int size;
+
         public Node(Integer priority) {
             this.priority = priority;
             left = right = null;
+            size = 1;
         }
     }
 
     Node root;
-    int size;
 
-    public Heap(){
+    public Heap() {
         root = null;
-        size = 0;
     }
 
-    public int add(Integer priority){
-        if(root == null){
+    public int add(Integer priority) {
+        if (root == null) {
             root = new Node(priority);
             return 0;
-        }
-        else{
-            int depth = addRecursive(root, priority, 0);
-            size++;
-            return depth;
-        }
-    }
+        } else {
+            Node currentNode = root;
+            int depth = 1;
 
-    private int addRecursive(Node currentNode, Integer priority, Integer depth){
-        if(priority < currentNode.priority){
-            int temp = currentNode.priority;
-            currentNode.priority = priority;
-            priority = temp;
-        }
+            while (true) {
+                currentNode.size++;
+                if (priority < currentNode.priority) {
+                    int temp = currentNode.priority;
+                    currentNode.priority = priority;
+                    priority = temp;
+                }
 
-        if(currentNode.left == null){
-            currentNode.left = new Node(priority);
-            return depth + 1;
-        }
-        else if(currentNode.right == null){
-            currentNode.right = new Node(priority);
-            return depth + 1;
-        }
-        else{
-            if(countNodes(currentNode.left) <= countNodes(currentNode.right)){
-                return addRecursive(currentNode.left, priority, depth + 1);
+                if (currentNode.left == null) {
+                    currentNode.left = new Node(priority);
+                    return depth;
+                } else if (currentNode.right == null) {
+                    currentNode.right = new Node(priority);
+                    return depth;
+                } else {
+                    if (currentNode.left.size <= currentNode.right.size) {
+                        currentNode = currentNode.left;
+                        depth++;
+                        continue;
+                    } else {
+                        currentNode = currentNode.right;
+                        depth++;
+                        continue;
+                    }
+                }
             }
-            else{
-                return addRecursive(currentNode.right, priority, depth + 1);
-            }
         }
-
-    }
-    private int countNodes(Node node){
-        if(node == null){
-            return 0;
-        }
-        return 1 + countNodes(node.left) + countNodes(node.right);
     }
 
-    public Integer remove(){
-        if(root == null){
+    public Integer remove() {
+        if (root == null) {
             return null;
         }
 
-        Node temp = root;
-        
-        if(size == 1){
+        Integer value = root.priority;
+
+        if (root.size == 1) {
             root = null;
+            return value;
+        } else {
+            Node currentNode = root;
+
+            while (true) {
+                currentNode.size--;
+                if (currentNode.left == null) {
+                    currentNode.priority = currentNode.right.priority;
+                    if (currentNode.right.left == null && currentNode.right.right == null) {
+                        currentNode.right = null;
+                        return value;
+                    }
+                    currentNode = currentNode.right;
+                    continue;
+                } else if (currentNode.right == null) {
+                    currentNode.priority = currentNode.left.priority;
+                    if (currentNode.left.left == null && currentNode.left.right == null) {
+                        currentNode.left = null;
+                        return value;
+                    }
+                    currentNode = currentNode.left;
+                    continue;
+                } else if (currentNode.right.priority < currentNode.left.priority) {
+                    currentNode.priority = currentNode.right.priority;
+                    if (currentNode.right.left == null && currentNode.right.right == null) {
+                        currentNode.right = null;
+                        return value;
+                    }
+                    currentNode = currentNode.right;
+                    continue;
+                } else {
+                    currentNode.priority = currentNode.left.priority;
+                    if (currentNode.left.left == null && currentNode.left.right == null) {
+                        currentNode.left = null;
+                        return value;
+                    }
+                    currentNode = currentNode.left;
+                    continue;
+                }
+            }
         }
-        else{
-            removeRecursive(temp);
-        }
-        return temp.priority;
     }
-    
-    private void removeRecursive(Node currentNode){
-        if(currentNode.left == null){
-            currentNode.priority = currentNode.right.priority;
-            if(currentNode.right.left == null && currentNode.right.right == null){
-                currentNode.right = null;
-                return;
-            }
-            removeRecursive(currentNode.right);
-        }
-        else if(currentNode.right == null){
-            currentNode.priority = currentNode.left.priority;
-            if(currentNode.right.left == null && currentNode.right.right == null){
-                currentNode.left = null;
-                return;
-            }
-            removeRecursive(currentNode.left);
-        }
-        else if(currentNode.right.priority < currentNode.left.priority){
-            currentNode.priority = currentNode.right.priority;
-            if(currentNode.right.left == null && currentNode.right.right == null){
-                currentNode.right = null;
-                return;
-            }
-            removeRecursive(currentNode.right);
-        }
-        else{
-            currentNode.priority = currentNode.left.priority;
-            if(currentNode.right.left == null && currentNode.right.right == null){
-                currentNode.left = null;
-                return;
-            }
-            removeRecursive(currentNode.left);
-        }
-    }
-    public void push(Integer incr){
+
+    public void pushRemoveAndAdd(Integer incr) {
         int temp = root.priority += incr;
         this.remove();
-        System.out.println(this.add(temp));
+        this.add(temp);
+    }
+
+    public int push(int incr) {
+        root.priority += incr;
+        int depth = 0;
+        
+        Node currentNode = root;
+        while (true) {
+            if(currentNode.priority < currentNode.right.priority && currentNode.priority < currentNode.left.priority)
+                return depth;
+
+            if (currentNode.left == null) {
+                int temp = currentNode.priority;
+                currentNode.priority = currentNode.right.priority;
+                currentNode.right.priority = temp;
+                if (currentNode.right.left == null && currentNode.right.right == null) {
+                    return depth;
+                }
+                currentNode = currentNode.right;
+                depth++;
+                continue;
+            } else if (currentNode.right == null) {
+                int temp = currentNode.priority;
+                currentNode.priority = currentNode.left.priority;
+                currentNode.left.priority = temp;
+                if (currentNode.left.left == null && currentNode.left.right == null) {
+                    return depth;
+                }
+                currentNode = currentNode.left;
+                depth++;
+                continue;
+            } else if (currentNode.right.priority < currentNode.left.priority) {
+                int temp = currentNode.priority;
+                currentNode.priority = currentNode.right.priority;
+                currentNode.right.priority = temp;
+                if (currentNode.right.left == null && currentNode.right.right == null) {
+                    return depth;
+                }
+                currentNode = currentNode.right;
+                depth++;
+                continue;
+            } else {
+                int temp = currentNode.priority;
+                currentNode.priority = currentNode.left.priority;
+                currentNode.left.priority = temp;
+                if (currentNode.left.left == null && currentNode.left.right == null) {
+                    return depth;
+                }
+                currentNode = currentNode.left;
+                depth++;
+                continue;
+            }
+        }
     }
 }

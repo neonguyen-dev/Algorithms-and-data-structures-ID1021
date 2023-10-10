@@ -40,6 +40,7 @@ public class HeapArray {
         heaps[k] = null;
 
         int i = 0;
+        int depth = 1;
         while(true){
             int left = 2 * i + 1;
             int right = 2 * i + 2;
@@ -60,5 +61,30 @@ public class HeapArray {
             break;
         }
         return temp.priority;
+    }
+
+    public void push(Integer incr){
+        heaps[0].priority += incr;
+
+        int i = 0;
+        while(true){
+            int left = 2 * i + 1;
+            int right = 2 * i + 2;
+            int smallest = k - 1;
+            if(left < k && heaps[left].priority < heaps[smallest].priority){
+                smallest = left;
+            }
+            if(right < k && heaps[right].priority < heaps[smallest].priority){
+                smallest = right;
+            }
+            if(smallest != i){
+                Node swap = heaps[i];
+                heaps[i] = heaps[smallest];
+                heaps[smallest] = swap;
+                i = smallest;
+                continue;
+            }
+            break;
+        }
     }
 }

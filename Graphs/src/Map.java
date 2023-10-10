@@ -3,7 +3,7 @@ import java.io.FileReader;
 
 public class Map {
     City[] cities;
-    int mod = 541;
+    private final int mod = 541;
 
     public Map(String file) {
         cities = new City[mod];

@@ -4,7 +4,7 @@ public class LinkedList {
     Node head;
     Node tail;
 
-    private LinkedList(Node head, Node tail) {
+    public LinkedList(Node head, Node tail) {
         this.head = head;
         this.tail = tail;
     }
@@ -14,7 +14,7 @@ public class LinkedList {
     }
 
     public static LinkedList createLinkedList(int size, Random rand) {
-        if(size < 1){
+        if (size < 1) {
             return new LinkedList(null, null);
         }
         Node node = new Node();
@@ -36,16 +36,19 @@ public class LinkedList {
         node.next = b.head;
     }
 
-    public void add(Node item){
-        Node node = this.head;
-        while (node.next != null) {
-            node = node.next;
+    public void add(Node item) {
+        if (this.head == null) {
+            head = item;
+            tail = item;
+            return;
         }
-        node.next = item;
+
+        tail.next = item;
+        tail = item;
     }
 
-    public int length(){
-        if(head == null){
+    public int length() {
+        if (head == null) {
             return 0;
         }
 
@@ -59,45 +62,45 @@ public class LinkedList {
         return counter;
     }
 
-    public boolean find(Node item){
+    public boolean find(Node item) {
         Node node = this.head;
-        
-        if(head == null){
+
+        if (head == null) {
             return false;
         }
 
-        if(node == item){
+        if (node == item) {
             return true;
         }
 
         while (node.next != null) {
-            if(node == item)
+            if (node == item)
                 return true;
             node = node.next;
         }
         return false;
     }
 
-    public void remove(Node item){        
+    public void remove(Node item) {
         Node node = this.head;
-        
-        if(head == null){
+
+        if (head == null) {
             return;
         }
 
-        if(node == item){
+        if (node == item) {
             head = node.next;
             return;
         }
 
         while (node.next != null) {
-            if(node.next == item){
+            if (node.next == item) {
                 node.next = node.next.next;
                 return;
             }
             node = node.next;
         }
-    }    
+    }
 
     public void push(Node item) {
         Node node = this.head;
@@ -128,39 +131,39 @@ public class LinkedList {
         return temp;
     }
 
-    public void unlink(Node node){
-        if(head == node){
+    public void unlink(Node node) {
+        if (head == node) {
             head = node.next;
             node.next = null;
             return;
         }
-        
+
         Node current = head;
-        while(current.next != null){
-            if(current.next == node){
+        while (current.next != null) {
+            if (current.next == node) {
                 Node unlinkedNode = current.next;
                 current.next = current.next.next;
                 unlinkedNode.next = null;
                 return;
             }
-            current = current.next; 
+            current = current.next;
         }
     }
 
-    public void insert(Node node){
+    public void insert(Node node) {
         node.next = head;
         head = node;
     }
 
     public Node partition(Node low, Node high) {
-        if(low == null || high == null || low == high){
+        if (low == null || high == null || low == high) {
             return low;
         }
         Node pivot = low;
         Node current = low;
 
-        while(low != high){
-            if(low.value < high.value){
+        while (low != high) {
+            if (low.value < high.value) {
                 pivot = current;
                 int temp = current.value;
                 current.value = low.value;
@@ -175,20 +178,58 @@ public class LinkedList {
 
         return pivot;
     }
-    
-    public void sort(Node low, Node high){
-        if(low == null || low == high || low == high.next){
+
+    public void sort(Node low, Node high) {
+        if (low == null || low == high || low == high.next) {
             return;
         }
         Node pivot = partition(low, high);
         sort(low, pivot);
 
-        if(pivot != null && pivot == low){
+        if (pivot != null && pivot == low) {
             sort(pivot.next, high);
         }
 
-        else if(pivot != null && pivot.next != null){
+        else if (pivot != null && pivot.next != null) {
             sort(pivot.next.next, high);
         }
     }
-} 
+
+    public static LinkedList quickSort(Node head, Node tail) {
+        if (head == null || tail == null || head == tail)
+            return new LinkedList(head, tail);
+
+        Node pivot = head;
+        LinkedList smaller = new LinkedList(null, null);
+        LinkedList larger = new LinkedList(null, null);
+
+        Node current = head.next;
+        while(current != null){
+            Node next = current.next;
+            current.next = null;
+            if(current.value < pivot.value){
+                smaller.add(current);
+            }
+            else{
+                larger.add(current);
+            }
+            current = next;
+        }
+
+        smaller = quickSort(smaller.head, smaller.tail);
+        larger = quickSort(larger.head, larger.tail);
+
+        if (smaller.tail != null) {
+            smaller.tail.next = pivot;
+        } else {
+            smaller.head = pivot;
+        }
+
+        pivot.next = larger.head;
+
+        if (larger.tail != null) {
+            return new LinkedList(smaller.head, larger.tail);
+        }
+        return new LinkedList(smaller.head, pivot);
+    }
+}

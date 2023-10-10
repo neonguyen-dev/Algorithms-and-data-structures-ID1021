@@ -2,25 +2,40 @@ import java.util.Random;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        int[] array = randomize_array(100);
-        sort(array, 0, array.length - 1);
-
+        int[] sizes = { 100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400};
+        int turns = 1000;
         Random rand = new Random();
 
-        LinkedList randomList = LinkedList.createLinkedList(100, rand);
-        Node current = randomList.head;
-        while(current != null){
-            System.out.println(current.value);
-            current = current.next;
+        for (int i = 0; i < sizes.length; i++) {
+            int[] array = randomize_array(sizes[i]);
+
+            double min = Double.POSITIVE_INFINITY;
+            for (int j = 0; j < turns; j++) {
+                long startTime = System.nanoTime();
+                sort(array, 0, array.length - 1);
+                long endTime = System.nanoTime();
+                if ((endTime - startTime) < min) {
+                    min = (endTime - startTime);
+                }
+                array = randomize_array(sizes[i]);
+            }
+            System.out.println(sizes[i] + " " + min/1000);
         }
-    
-        System.out.println();
-        randomList.sort(randomList.head, randomList.tail);
-    
-        current = randomList.head;
-        while(current != null){
-            System.out.println(current.value);
-            current = current.next;
+
+        for (int i = 0; i < sizes.length; i++) {
+            LinkedList randomList = LinkedList.createLinkedList(sizes[i], rand);
+
+            double min = Double.POSITIVE_INFINITY;
+            for (int j = 0; j < turns; j++) {
+                long startTime = System.nanoTime();
+                randomList =LinkedList.quickSort(randomList.head, randomList.tail);
+                long endTime = System.nanoTime();
+                if ((endTime - startTime) < min) {
+                    min = (endTime - startTime);
+                }
+                randomList = LinkedList.createLinkedList(sizes[i], rand);
+            }
+            System.out.println(sizes[i] + " " + min/1000);
         }
     }
 
@@ -37,30 +52,30 @@ public class App {
 
     static void sort(int arr[], int low, int high) {
         if (low < high) {
-            int pi = partition(arr, low, high);
+            int mid = partition(arr, low, high);
 
-            sort(arr, low, pi - 1);
-            sort(arr, pi + 1, high);
+            sort(arr, low, mid - 1);
+            sort(arr, mid + 1, high);
         }
     }
 
     static int partition(int arr[], int low, int high) {
         int pivot = arr[high];
 
-        int i = low - 1;
-        
+        int mid = low - 1;
+
         for (int j = low; j < high; j++) {
             if (arr[j] < pivot) {
-                i++;
-                int temp = arr[i];
-                arr[i] = arr[j];
+                mid++;
+                int temp = arr[mid];
+                arr[mid] = arr[j];
                 arr[j] = temp;
             }
         }
-        i++;
-        int temp = arr[i];
-        arr[i] = arr[high];
+        mid++;
+        int temp = arr[mid];
+        arr[mid] = arr[high];
         arr[high] = temp;
-        return i;
+        return mid;
     }
 }
