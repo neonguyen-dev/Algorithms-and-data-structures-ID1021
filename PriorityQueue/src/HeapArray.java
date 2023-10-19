@@ -38,13 +38,13 @@ public class HeapArray {
         Node temp = heaps[0];
         heaps[0] = heaps[--k];
         heaps[k] = null;
-
+        
         int i = 0;
         int depth = 1;
         while(true){
+            int smallest = i;
             int left = 2 * i + 1;
             int right = 2 * i + 2;
-            int smallest = k - 1;
             if(left < k && heaps[left].priority < heaps[smallest].priority){
                 smallest = left;
             }

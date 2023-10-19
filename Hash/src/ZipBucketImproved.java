@@ -1,8 +1,8 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-public class ZipBucket {
-    Node[][] data;
+public class ZipBucketImproved {
+    Node[] data;
     int max;
     int[] keys;
     int mod;
@@ -19,9 +19,9 @@ public class ZipBucket {
         }
     }
 
-    public ZipBucket(int mod, String file) {
+    public ZipBucketImproved(int mod, String file) {
         this.mod = mod;
-        data = new Node[mod][0];
+        data = new Node[mod*2];
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             int i = 0;
@@ -32,14 +32,13 @@ public class ZipBucket {
 
                 int hashKey = code % mod;
 
-                Node[] tempArray = new Node[data[hashKey].length + 1];
-                for (int j = 0; j < data[hashKey].length; j++) {
-                    tempArray[j] = data[hashKey][j];
+                for (int j = hashKey % data.length; j < data.length; j++) {
+                    if(data[j] == null){
+                        data[j] = tempNode;
+                        i++;
+                        break;
+                    }
                 }
-                tempArray[tempArray.length - 1] = tempNode;
-                data[hashKey] = tempArray;
-
-                i++;
             }
             max = i - 1;
         } catch (Exception e) {
@@ -49,11 +48,15 @@ public class ZipBucket {
 
     public Node lookup(int code) {
         int hashKey = code % mod;
-        for (int i = 0; i < data[hashKey].length; i++) {
-            if (code == data[hashKey][i].code) {
-                return data[hashKey][i];
+        int steps = 0;
+        for (int i = hashKey % data.length; i < data.length; i++) {
+            steps++;
+            if(data[i] == null || data[i].code == code){
+                System.out.println(steps);
+                return data[i];
             }
         }
+
         return null;
     }
 }

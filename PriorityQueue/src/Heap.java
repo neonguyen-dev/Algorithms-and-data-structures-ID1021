@@ -66,7 +66,7 @@ public class Heap {
             return value;
         } else {
             Node currentNode = root;
-
+            
             while (true) {
                 currentNode.size--;
                 if (currentNode.left == null) {

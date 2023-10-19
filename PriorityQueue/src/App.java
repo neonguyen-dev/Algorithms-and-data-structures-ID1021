@@ -4,7 +4,7 @@ public class App {
     public static void main(String[] args) throws Exception {
         benchPriority();
         benchHeap();
-        benchHeapArray();
+        //sbenchHeapArray();
     }
 
     public static void benchHeap() {
@@ -73,11 +73,14 @@ public class App {
 
     public static void benchPriority() {
         int[] sizes = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600 };
-        Queue queue = new Queue();
         Random rand = new Random();
         int turns = 100;
-
+        
         for (int i = 0; i < sizes.length; i++) {
+            Queue queue = new Queue();
+            HeapArray heapArray = new HeapArray(sizes[i]);
+            Heap heap = new Heap();
+
             double min = Double.POSITIVE_INFINITY;
             for (int j = 0; j < turns; j++) {
                 long startTime = System.nanoTime();
@@ -111,6 +114,41 @@ public class App {
                 }
             }
             System.out.println("Slow add and fast remove " + sizes[i] + ": " + min / 1000 + " microseconds");
+
+
+            min = Double.POSITIVE_INFINITY;
+            for (int j = 0; j < turns; j++) {
+                long startTime = System.nanoTime();
+                for (int k = 0; k < sizes[i]; k++) {
+                    heapArray.add(rand.nextInt(sizes[i]));
+                }
+                for (int k = 0; k < sizes[i]; k++) {
+                    heapArray.remove();
+                }
+                long endTime = System.nanoTime();
+
+                if ((endTime - startTime) < min) {
+                    min = (endTime - startTime);
+                }
+            }
+            System.out.println("Heap Array " + sizes[i] + ": " + min / 1000 + " microseconds");
+
+            min = Double.POSITIVE_INFINITY;
+            for (int j = 0; j < turns; j++) {
+                long startTime = System.nanoTime();
+                for (int k = 0; k < sizes[i]; k++) {
+                    heap.add(rand.nextInt(sizes[i]));
+                }
+                for (int k = 0; k < sizes[i]; k++) {
+                    heap.remove();
+                }
+                long endTime = System.nanoTime();
+
+                if ((endTime - startTime) < min) {
+                    min = (endTime - startTime);
+                }
+            }
+            System.out.println("Heap linked structure " + sizes[i] + ": " + min / 1000 + " microseconds");
         }
 
     }

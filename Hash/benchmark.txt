@@ -1,0 +1,23 @@
+"984 99"
+BinaryString search: 900 nanoseconds
+Binary search: 600 nanoseconds
+LinearString search: 44800 nanoseconds
+Linear search: 15800 nanoseconds
+Hash space-waste string: 600 nanoseconds
+Hash space-waste: 0.0 nanoseconds
+Hash bucket: 100 nanoseconds
+Hash bucket improved: 0.0 nanoseconds
+
+"111 15"
+Binary string search: 400 nanoseconds
+Binary search: 100 nanoseconds
+Linear string search: 100 nanoseconds
+Linear search: 0.0 nanoseconds
+Hash space-waste string: 400 nanoseconds
+Hash space-waste: 0.0 nanoseconds
+Hash bucket: 0.0 nanoseconds
+Hash bucket improved: 0.0 nanoseconds
+
+Best hash modulo operator:
+        1       2       3       4       5       6       7       8       9       10
+17573   8136    1438    100     0       0       0       0       0       0       0
