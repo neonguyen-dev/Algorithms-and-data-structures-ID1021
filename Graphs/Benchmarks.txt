@@ -1,0 +1,205 @@
+Graphs Naive:
+Malmö Göteborg 500: 153 min (1014 ms)
+Göteborg Stockholm 500: 211 min (1113 ms)
+Malmö Stockholm 500: 273 min (1023 ms)
+Stockholm Sundsvall 500: 327 min (743 ms)
+Stockholm Umeå 700: gave up
+Göteborg Sundsvall 600: gave up
+Sundsvall Umeå 500: 190 min (3 ms)
+Umeå Göteborg 1000: 705 min (2435 ms)
+Göteborg Umeå 800: gave up
+
+Better:
+Malmö Göteborg: 153 min (337 μs)
+Göteborg Stockholm: 211 min (457 μs)
+Malmö Stockholm: 273 min (85 μs)
+Stockholm Sundsvall: 327 (3110 μs)
+Stockholm Umeå: 517 min (10190 μs)
+Göteborg Sundsvall: 515 min (6520 μs)
+Sundsvall Umeå: 190 min (297000 μs)
+Umeå Göteborg: 705 min (600 μs)
+Göteborg Umeå: 705 min (30620 μs)
+
+Distance from Malmö to:
+Lund: 13 min (14 μs)
+Helsingborg: 48 min (893 μs)
+Halmstad: 85 min (695 μs)
+Göteborg: 153 min (377 μs)
+Kalmar: 160 min (12247 μs)
+Linköping: 169 min (42 μs)
+Stockholm: 273 min (91 μs)
+Uppsala: 324 min (322 μs)
+Gävle: 383 min (572 μs)
+Sundsvall: 600 min (3180 μs)
+Umeå: 790 min (20018 μs)
+Kiruna: 1162 min (77400 μs)
+
+
+Dijkstra's algorithm: 1221 μs
+Malmö - Kiruna: 1162 min
+Path: 
+Lund
+Hässleholm
+Alvesta
+Nässjö
+Mjölby
+Linköping
+Norrköping
+Södertälje
+Stockholm
+Uppsala
+Gävle
+Sundsvall
+Umeå
+Boden
+Gällivare
+Kiruna
+
+From Malmö
+0 Lund: 13 min
+1 Köpenhamn: 43 min
+2 Ystad: 49 min
+3 Hässleholm: 43 min
+4 Åstorp: 49 min
+5 Helsingborg: 48 min
+6 Hamburg: 319 min
+7 Odense: 114 min
+8 Alvesta: 81 min
+9 Kristianstad: 69 min
+10 Helsingör: 68 min
+11 Halmstad: 85 min
+12 ?winouj?cie: 409 min
+13 Karlskrona: 164 min
+14 Nässjö: 114 min
+15 Värnamo: 120 min
+16 Emmaboda: 131 min
+17 Varberg: 114 min
+18 Fredrikshamn: 402 min
+19 Göteborg: 153 min
+20 Mjölby: 153 min
+21 Jönköping: 148 min
+22 Kalmar: 160 min
+23 Falköping: 193 min
+24 Linköping: 169 min
+25 Herrljunga: 192 min
+26 Uddevalla: 227 min
+27 Trollhättan: 197 min
+28 Norrköping: 193 min
+29 Skövde: 209 min
+30 Södertälje: 252 min
+31 Katrineholm: 218 min
+32 Karlstad: 311 min
+33 Halden: 282 min
+34 Hallsberg: 249 min
+35 Eskilstuna: 264 min
+36 Strömstad: 307 min
+37 Örebro: 268 min
+38 Stockholm: 273 min
+39 Västerås: 297 min
+40 Arboga: 289 min
+41 Frövi: 289 min
+42 Uppsala: 324 min
+43 Nynäshamn: 336 min
+44 Åbo: 968 min
+45 Helsingfors: 1003 min
+46 Oslo: 381 min
+47 Fagersta: 339 min
+48 Ludvika: 375 min
+49 Berlin: 424 min
+50 Hannover: 395 min
+51 Bremen: 375 min
+52 Gävle: 383 min
+53 Sala: 359 min
+54 Avesta: 363 min
+55 Storvik: 405 min
+56 Amsterdam: 623 min
+57 Borlänge: 410 min
+58 Sundsvall: 600 min
+59 Ånge: 548 min
+60 Köln: 553 min
+61 Göttingen: 462 min
+62 Kassel: 448 min
+63 Mora: 484 min
+64 Warsawa: 731 min
+65 Leipzig: 493 min
+66 Frankfurt: 605 min
+67 Nürnberg: 665 min
+68 Sveg: 645 min
+69 Dresden: 553 min
+70 Östersund: 612 min
+71 Liege: 614 min
+72 Prag: 683 min
+73 Umeå: 790 min
+74 Mannheim: 637 min
+75 Trondheim: 845 min
+76 Luxenburg: 769 min
+77 Bryssel: 662 min
+78 Basel: 767 min
+79 Saarbrucken: 715 min
+80 Stuttgart: 675 min
+81 Lille: 713 min
+82 München: 738 min
+83 Wien: 924 min
+84 London: 795 min
+85 Paris: 775 min
+86 Gdansk: 878 min
+87 Innsbruck: 842 min
+88 Geneve: 927 min
+89 Zürich: 821 min
+90 Dijon: 852 min
+91 Metz: 828 min
+92 Lyon: 881 min
+93 Boden: 976 min
+94 Vasa: 1076 min
+95 Leeds: 967 min
+96 Birmingham: 976 min
+97 Verona: 1057 min
+98 Marseille: 1003 min
+99 Montpellier: 999 min
+100 Graz: 1138 min
+101 Budapest: 1081 min
+102 Manchester: 1026 min
+103 Edinburgh: 1157 min
+104 Tammerfors: 1068 min
+105 Gällivare: 1095 min
+106 Luleå: 1002 min
+107 Barcelona: 1189 min
+108 Nice: 1161 min
+109 Liverpool: 1063 min
+110 Preston: 1089 min
+111 Milano: 1130 min
+112 Venedig: 1129 min
+113 Seinäjoki: 1139 min
+114 Seinäjoki: 1133 min
+115 Bukarest: 1981 min
+116 Kiruna: 1162 min
+117 Turin: 1190 min
+118 Bologna: 1204 min
+119 Glasgow: 1210 min
+120 Narvik: 1352 min
+121 Zaragoza: 1272 min
+122 Valencia: 1361 min
+123 Genova: 1339 min
+124 Pescara: 1393 min
+125 Florens: 1241 min
+126 Rom: 1337 min
+127 Madrid: 1347 min
+128 Neapel: 1410 min
+129 Foggia: 1483 min
+130 Bari: 1544 min
+131 Taranto: 1621 min
+132 Brindisi: 1597 min
+
+0 Stockholm: 0 min
+46 Köpenhamn: 316 min
+52 Oslo: 374 min
+63 Berlin: 697 min
+67 Helsingfors: 730 min
+79 Amsterdam: 896 min
+81 Bryssel: 935 min
+84 Prag: 956 min
+87 Warsawa: 1004 min
+91 Paris: 1048 min
+92 London: 1068 min
+111 Venedig: 1402 min
+122 Rom: 1610 min

@@ -4,18 +4,8 @@ public class Trie {
     public Trie() {
         root = new Node();
     }
-
-    public void add(String key) {
-        Node current = root;
-
-        for (int i = 0; i < key.length(); i++) {
-            int index = letterToInt(key.charAt(i));
-            if (current.next[index] == null) {
-                current.next[index] = new Node();
-            }
-            current = current.next[index];
-        }
-        current.word = true;
+    public void add(String key){
+        root.add(key, 0);
     }
 
     public String[] search(String keySequence) {
@@ -40,7 +30,6 @@ public class Trie {
         if(path.length() == key.length()){
             return words;
         }
-        
 
         int index = keyToIndex(key.charAt(path.length()));
         words = search(current.next[index * 3], key, path + intToLetter(index * 3), words);
@@ -50,7 +39,7 @@ public class Trie {
         return words;
     }
 
-    public Integer letterToInt(char letter) {
+    public static Integer letterToInt(char letter) {
         if ((int) letter >= 97 && (int) letter <= 113) {
             return (int) letter - 97;
         } else if ((int) letter >= 114 && (int) letter <= 118) {
@@ -71,7 +60,7 @@ public class Trie {
         return null;
     }
 
-    public Character intToLetter(int code) {
+    public static Character intToLetter(int code) {
         if (code >= 0 && code <= 15) {
             return (char) (code + 97);
         } else if (code >= 16 && code <= 20) {
@@ -91,24 +80,24 @@ public class Trie {
         return null;
     }
 
-    public Integer keyToIndex(char key) {
+    public static Integer keyToIndex(char key) {
         if ((int) key >= 49 && (int) key <= 57) {
             return (int) key - 49;
         }
         return null;
     }
 
-    public Character indexToKey(int index) {
+    public static Character indexToKey(int index) {
         if (index >= 0 && index <= 8) {
             return (char) (index + 49);
         }
         return null;
     }
 
-    public String characterToKey(String character){
+    public static String characterToKey(String character){
         String temp = "";
         for (int i = 0; i < character.length(); i++) {
-            temp += (this.letterToInt(character.charAt(i)) / 3) + 1;
+            temp += (letterToInt(character.charAt(i)) / 3) + 1;
         }
         return temp;
     }

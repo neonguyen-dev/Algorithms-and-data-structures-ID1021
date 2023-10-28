@@ -14,7 +14,7 @@ public class App {
         }
 
         for (int i = 0; i < words.size(); i++) {
-            keys = addWord(keys, trie.characterToKey(words.get(i).toLowerCase().replaceAll("\\s", "")));
+            keys = addWord(keys, Trie.characterToKey(words.get(i).toLowerCase().replaceAll("\\s", "")));
         }
 
         String[] temp = trie.search("1146");

@@ -9,13 +9,15 @@ public class Paths {
     public static void main(String[] args) {
         Map map = new Map("trains.csv");
         Paths paths = new Paths();
-        String from = args[0];
-        String to = args[1];
+        String from = "Göteborg";
+        String to = "Umeå";
+        //String from = args[0];
+        //String to = args[1];
         //Integer max = Integer.valueOf(args[2]);
         long t0 = System.nanoTime();
         Integer dist = paths.shortest(map.lookup(from), map.lookup(to), null);
-        long time = (System.nanoTime() - t0) / 1_000_000;
-        System.out.println("shorest: " + dist + " min (" + time + " ms)");
+        long time = (System.nanoTime() - t0) / 1_000;
+        System.out.println("shortest: " + dist + " min (" + time + " μs)");
     }
     
     private Integer shortest(City from, City to, Integer max) {
@@ -33,7 +35,7 @@ public class Paths {
         for (int i = 0; i < from.neighbors.length; i++) {
             if (from.neighbors[i] != null) {
                 Connection conn = from.neighbors[i];
-
+                
                 if(max != null){
                     Integer temp = shortest(conn.city, to , max - conn.distance);
                     if(temp != null && (shrt == null || shrt > temp + conn.distance)){
@@ -44,7 +46,7 @@ public class Paths {
                     Integer temp = shortest(conn.city, to, null);
                     if(temp != null && (shrt == null || shrt > temp + conn.distance)){
                         shrt = temp + conn.distance;
-                        max = temp - conn.distance;
+                        max = shrt;
                     }
                 }
 
