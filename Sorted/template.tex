@@ -1,0 +1,184 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\begin{document}
+
+\title{
+    \textbf{Sorted}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will explore different ways to search through an array. The cases are for unsorted arrays and sorted arrays. For this, we will explore the practices of linear search, binary search, and a case for a final version that utilizes searching through two arrays simultaneously, also known as two pointers technique. The context is to determine the most optimal way to search through an array, with an explanation of each time complexity.
+
+\section*{Linear search}
+
+    A linear search is the practice of examining each element in the data structure to find a match. This is done through increments of the index and comparing the values to the given key. It is the simplest approach to implementing a search for an element. For this assignment, two different cases are explored, sorted and unsorted arrays.
+
+    \subsection*{Unsorted linear search}
+
+        The first case for linear search consists of finding duplicates in an unsorted array. The procedure includes a loop through all the elements until a duplicate is found. 
+        
+        Because of this, the time complexity of finding one duplicate is $O(n)$ at worst, where n stands for the number of elements. If this is the case the time complexity for finding duplicates in two equally sized unsorted arrays is $O(n^2)$ at worst, meaning trying to find n amount of duplicates in an n-sized array with no matches. This suggests that the running time should be exponentially dependent on the input size of n.
+\begin{minted}{java}
+public static boolean search_unsorted(int[] array, int key) {
+    for (int index = 0; index < array.length; index++) {
+        if (array[index] == key) {
+            return true;
+        }
+    }
+    return false;
+}
+\end{minted}
+        The following code is the code provided to implement a linear search with parameters of the array and a given key to identify. This is later looped further to take into consideration the n-amount of keys 
+    \subsection*{Sorted linear search}
+
+        The second case is of the same procedure but with sorted arrays. The benefit of a sorted array is that you can return the function and stop the search if the next element in the array is larger than your given key. 
+        
+        This quick optimization will not change the time complexity as it is still utilizing linear search. Hence the time complexity at worst for trying to find one duplicate is $O(n)$ and $O(n^2)$ for trying to find n amounts of duplicates with no matches in an n-sized array, where n stands for the number of elements in the array. Meaning that the running time is exponentially dependent on the input size of n. 
+\begin{minted}{java}
+else if(array[index] > key){
+        return false;
+}
+\end{minted}
+        The following if statement is added to the \texttt{search\_unsorted} method. Likewise, this is looped through all the keys in an n-sized array.
+        
+\section*{Binary search}
+
+    Binary search is the practice of dividing the array in half, through iterations, to find an element in a sorted array. Binary search is only viable as a search algorithm if the array is sorted. The algorithm consists of determining the first possible element and the last possible element, whilst also having an index with the value of half the value of the sum of the first possible element pointer value and the last possible element pointer value. The key value is then compared to the value of the element in the index position. If it is greater, the first possible element will be that of index + 1, and if it is lower the last possible element will be that of index - 1. This is then repeated until the key has been identified in the sorted array or nothing is found. 
+    
+    Since we decrease the number of elements by half in each iteration of the loop, the time complexity at worst for trying to find one match will be of $O(\log n)$, with n being the size of the array. For finding n amounts of matches using binary search in an n-sized sorted array, the time complexity at worst will be $O(n \log n)$. Meaning that the running time is linearly and logarithmically dependent on the input size of n.
+
+\begin{minted}{java}
+public static boolean binary_search(int[] array, int key) {
+    int first = 0;
+    int last = array.length - 1;
+    
+    while (true) {
+        int index = (last + first) / 2;
+        if (array[index] == key) {
+            return true;
+        }
+        if (array[index] < key && index < last) {
+            first = index + 1;
+            continue;
+        }
+        if (array[index] > key && index > first) {
+            last = index - 1;
+            continue;
+        }
+        return false;
+    }
+}
+\end{minted}
+    The following code snippet is for implementing the binary search. Through each iteration of the loop, it changes the possible index intervals on given conditions. Like the previous examples, this is looped through all the keys.
+\section*{Two pointers technique}
+
+    The last case is the practice of the two pointers technique. Like the case for binary search, this technique requires sorted arrays, in this specific case, two sorted arrays. The search could now be constructed to be run simultaneously through the two different arrays by using two pointers. The algorithm consists of two pointers for each array. They increment on conditions being, that if the next element in our first given array is greater than the next element in our second given array, the pointer to the second given array is incremented. If they are equal or the next element in our first given array is smaller, the pointer to the first given array is incremented. 
+
+    Since this algorithm only runs on one loop, the time complexity for this algorithm would be at worst $O(n)$. Meaning that the running time of this algorithm is linearly dependent on the input size of n.
+    
+\begin{minted}{java}
+public static void better_version(int[] array1, int[] array2) {
+    int next1 = 0;
+    int next2 = 0;
+    
+    while (next1 < array1.length && next2 < array2.length) {
+        if (array2[next2] < array1[next1]) {
+            next2++;
+        } else if (array2[next2] >= array1[next1]) {
+            next1++;
+        }
+    }
+}
+\end{minted}
+    The code snippet provided uses the two pointers technique to run searches through two different arrays. This only needs to be executed once since we pass the sorted array to be searched and the sorted array of keys as parameters, and run through them in parallel to each other.
+\subsection*{Benchmark}
+
+    The benchmark tested the input sizes of 100-1600. The following graphs present the times of all four different cases:
+    \begin{center}
+    \begin{tikzpicture}
+    \begin{axis}[
+        title={Execution time of each search, excluding two pointers technique},
+        xlabel={Amount of elements},
+        ylabel={Time given in \[\mu\]s},
+        xmin=0, xmax=1600,
+        ymin=0, ymax=600,
+        xtick={0,200,400,600,800,1000,1200,1400,1600},
+        ytick={0,100,200,300,400,500,600},
+        legend pos=north west,
+        ymajorgrids=true,
+        grid style=dashed,
+    ]
+
+    \addplot[
+    color=blue,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,28.9)(200,16.6)(300,30.7)(400,41.5)(500,77.3)(600,105)(700,109.9)(800,143)(900,178.2)(1000,221.9)(1100,268.8)(1200,315.5)(1300,368.9)(1400,434.7)(1500,498)(1600,562.4)
+    };
+    \addlegendentry{Unsorted Linear Search}
+
+    \addplot[
+    color=red,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,5.4)(200,17.2)(300,26.4)(400,39.9)(500,85.6)(600,130.3)(700,117.5)(800,162)(900,202.4)(1000,253.2)(1100,306.5)(1200,309.6)(1300,408.2)(1400,445.4)(1500,539.7)(1600,496.4)
+    };
+    \addlegendentry{Sorted Linear Search}
+
+    \addplot[
+    color=green,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,5.8)(200,8.2)(300,4.5)(400,16.1)(500,21.2)(600,11.6)(700,14.9)(800,22)(900,29)(1000,33)(1100,42.9)(1200,46.8)(1300,54.3)(1400,60.7)(1500,64.6)(1600,71.9)
+    };
+    \addlegendentry{Binary search}
+
+    \end{axis}
+    \end{tikzpicture}
+    \end{center}
+
+    \begin{tikzpicture}
+    \begin{axis}[
+        title={Execution time of two pointers technique},
+        xlabel={Amount of elements},
+        ylabel={Time given in \[\mu\]s},
+        xmin=0, xmax=1600,
+        ymin=0, ymax=4,
+        xtick={0,200,400,600,800,1000,1200,1400,1600},
+        ytick={0,1,2,3,4},
+        legend pos=north west,
+        ymajorgrids=true,
+        grid style=dashed,
+    ]
+    \addplot[
+    color=purple,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,0.6)(200,0.3)(300,0.3)(400,0.6)(500,0.8)(600,1.4)(700,1.6)(800,1.8)(900,2.1)(1000,2.3)(1100,2.5)(1200,2.8)(1300,3.1)(1400,3.3)(1500,3.6)(1600,3.9)
+    };
+    \addlegendentry{Two pointers technique}
+    \end{axis}
+    \end{tikzpicture}
+    
+    The following results suggest that the execution time is parallel to their corresponding time complexity. Both linear searches are parallel to an exponential growth dependent on the input size, whilst the latter two cases are parallel to a linear growth dependent on the input size. The two pointers technique is significantly lower than the rest of the cases, but this is limited to searching through two arrays instead of searching for one or a few elements, where the binary search is the clear option given a sorted array. The benefit of a sorted array is not present at all when taking the running times of the two linear search cases into consideration, but given that binary search performs significantly better than linear search, there is a benefit to using a sorted array.
+
+\section*{Conclusion}
+    
+    Time complexities are a great way to describe the efficiency of an algorithm. The algorithms provided for this specific assignment suggest that the two pointers technique is the most time-efficient for searching for duplicates in two sorted arrays. But if given that we want to search for a few elements, the obvious choice is binary search with a given sorted array. This however is not always presented in some cases and whether it is worth it to sort an array will be determined in the next assignment.
+    
+\end{document}

@@ -1,0 +1,125 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\begin{document}
+
+\title{
+    \textbf{T9}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will explore the data structure of trie. The trie is a multiway tree data structure that is used to store strings over an alphabet. Each character is indexed in each node of the tree-like structure and if two strings follow the same sequence of characters, they will follow the same path of branches within the trie. A word is marked by a boolean at the end of the character sequence. The following implementation of the data structure will be used to create a predictive text program using the T9 technology of the most common Swedish words.
+    
+\section*{T9}
+
+   The T9 technology is a predictive text technology for mobile phones that utilizes a keypad with 9 number keys, 0 is usually excluded. The technology computed a word based on a sequence of keys. The T9 program for this assignment uses keys from 1-9 and the Swedish alphabet, excluding \textit{w} and \textit{q} for a total of 27 characters. This means that each key evenly holds 3 characters. The program will take a key combination as an input and return all the possible words or strings.
+
+\section*{Trie}
+
+    A trie is a data structure that holds nodes that branch to the number of characters of nodes to combine. In this context, a node should hold branches to 27 different nodes in an array format, with each index representing a character in our alphabet. A node also holds a flag representing the end of a string. A leaf will always be flagged, but every flagged node does not necessarily have to be a leaf. The data structure starts from the root node and each path from the root to a flagged node will represent a valid word or string. 
+
+    \subsection*{Implementation}
+
+        The implementation of a T9 program utilizing the trie as a data structure starts with some helper functions to ease the translation between the input and the keys, as well as characters to indexes of our array. 
+
+        \subsubsection*{Character to code}
+
+            A code refers to the character code. The function takes a character as an input and returns an index in the range of [0, 26]. To ease the number of bloated code lines with the 27 different cases, the ASCII value of the character that follows an ordered sequence is utilized to return the requested character code. The following code snippet is of the function using the ASCII value. The code does account for the characters of \textit{r} and \textit{w} in our else-if statements, as well as characters \textit{å, ä, ö}.
+\begin{minted}{java}
+public Integer letterToInt(char letter) {
+    if ((int) letter >= 97 && (int) letter <= 113) {
+        return (int) letter - 97;
+    } else if ((int) letter >= 114 && (int) letter <= 118) {
+        return (int) letter - 98;
+    } else if ((int) letter >= 120 && (int) letter <= 122) {
+        return (int) letter - 99;
+    }
+    switch (letter) {
+        case 'å':
+            return 24;
+        case 'ä':
+            return 25;
+        case 'ö':
+            return 26;
+    }
+    return null;
+}
+\end{minted}
+
+        \subsubsection*{Key to index}
+
+            A key is a character of our input. It represents the key that we press on our 9 different keys. Since the ASCII value between the characters of '1' and '9' is ordered, the implementation is to just subtract the ASCII value by the ASCII value of '1' to get an index range between [0, 8].
+
+        \subsubsection*{String to a key sequence}
+
+            At last, the function of taking a string and translating it to a key sequence is added. This method is used to ease the tests for words. The method starts with populating a temporary string with calls to \texttt{letterToInt(char letter)} dividing by 3 and adding 1 for every character in our string., this results in a key sequence in the string format that can be used to retrieve a word.
+
+        \subsubsection*{Adding a word}
+
+            Adding a word is a simple method of recursively calling for \texttt{add} in the \texttt{Node} class to get to our next branch, starting in our root node. The input is of a string, but to account for the sequence of characters, we also keep track of the current char index of our string. The following code snippet is of \texttt{add}. If the element in the index of our next array is null, we will declare the node to be valid. We will branch until we are at the last character of our string and that is where the flag is set to true indicating the end of a word.
+\begin{minted}{java}
+public void add(String key, int i) {
+    if(i == key.length()){
+        word = true;
+        return;
+    }
+    int index = Trie.letterToInt(key.charAt(i++));
+    if (this.next[index] == null) {
+        this.next[index] = new Node();
+    }
+    
+    this.next[index].add(key, i);
+}
+\end{minted}
+
+        \subsubsection*{Searching for a word}
+
+            Searching for a word consists of keeping track of the current node, starting at our root node, and the current path that we have taken, to recursively call for the amount of combinations possible with our input of a key sequence. If the traversal is indicated by a flag in a given node, we will store the current path in an array of strings. We will traverse until either the path is of the same length as our key sequence or we have hit a node that is null, indicating that a word with the same length as our key sequence is not possible, there could still be words within the combination.
+
+            The mathematical expressions $index * 3$, $index * 3 + 1$, and $index * 3 + 2$ are used to retrieve the character codes from an index within a given key. Each of these branches is examined through recursive calls. The following code snippet is of our \texttt{search} method.
+\begin{minted}{java}
+private String[] search(Node current, String key, 
+                        String path, String[] words){
+    if(current == null){
+        return words;
+    }
+    
+    if(current.word){
+        String temp[] = new String[words.length + 1];
+        for (int i = 0; i < words.length; i++) {
+            temp[i] = words[i];
+        }
+        temp[words.length] = path;
+        words = temp;
+    }
+    
+    if(path.length() == key.length()){
+        return words;
+    }
+    int index = keyToIndex(key.charAt(path.length()));
+    words = search(current.next[index * 3], 
+            key, path + intToLetter(index * 3), words);
+    words = search(current.next[index * 3 + 1], 
+            key, path + intToLetter(index * 3 + 1), words);
+    words = search(current.next[index * 3 + 2], 
+            key, path + intToLetter(index * 3 + 2), words);
+    
+    return words;
+}
+\end{minted}
+
+\section*{Conclusion and results}
+
+    Using the provided \texttt{kelly.txt} file consisting of the most common Swedish words, the program was able to populate the tree with every single word and this is further confirmed by using the string to a key sequence method as an input to our search method. The implementation for reading all the lines of the \texttt{kelly.txt} file used the code line of \texttt{Files.readAllLines(Paths.get())} that was imported from the \texttt{java.nio.file} library. The program also accounted for uppercase and spaces in \texttt{kelly.txt} by using the code line of \texttt{toLowerCase()} and \texttt{replaceAll("\char`\\\char`\\s", "")}. 
+    
+\end{document}

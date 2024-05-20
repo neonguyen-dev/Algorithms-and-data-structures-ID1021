@@ -1,0 +1,139 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\begin{document}
+
+\title{
+    \textbf{Graph}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will explore the data structure of a graph. A graph is a non-linear data structure consisting of nodes or vertices that are connected through edges or links. The edges or links can build paths between nodes that are not directly connected to each other. 
+
+    This data structure will be used to create a map of a rail network in Sweden, to find the shortest path with a given input of the starting city to the destination city.
+    
+\section*{Graph}
+
+    A graph as a data structure is represented through a set of nodes, most commonly referred to as vertices in the context of graphs. The connection between two vertices or nodes is referred to as edges. The edges build paths between nodes that are not connected to each other through an edge. A tree is a form of a graph where we have one-way edges starting from our root. Each node is a destination excluding our root since there are no link references from a node to our root. A linked list is also a form of a graph, with one-way edges starting from our head and each node is a destination excluding our head, for the same reason as a tree. Both of the mentioned data structures do not consist of circular paths.
+
+    For this assignment, the restrictions concerning circular paths and directed edges are lifted to solve a real-life problem of finding the shortest path within a rail network system.
+
+    \subsection*{Implementation}
+
+        This assignment concerns the creation of a graph through the reading of a CSV file that consists of a connection between two different cities and its distance represented in the number of minutes it takes to reach the destination. Each connection is bidirectional, meaning that the edge or link should go both ways. The nodes or vertices are represented as a city and a city holds references to the connections, known as neighbors. A connection holds a city and the distance.
+
+        \subsubsection*{City and Connection}
+
+            The \texttt{City} class consists of a \texttt{String} that represents the name of the city and an array of \texttt{Connection} objects, representing the directed connections from the city to a neighbor. The \texttt{Connection} class simply holds the city and a distance. To our \texttt{City} class, a method connecting the city to its neighbors is added. This is simply by taking the parameter values of a city object and its distance, creating a new \texttt{Connection} object with the following values, and adding it to the array.
+
+        \subsubsection*{Map}
+
+            The construction of the map concerns taking each line of the CSV file and connecting the two cities to each other with the distance specified. The call to connect for each of the two connecting cities is in practice, thus creating a bidirectional link. 
+            
+            The program also has to check if a city has already been added as a node to our graph. If the following case is true, the node is retrieved instead of having to create a new node. The procedure is of our lookup method where we utilize the hash table as a data structure to find if the city is already added within our array of cities. A new node is created if it is not present within our array and the following node is returned. To account for collisions we move to the next available slot starting from our hash index, and we will end our search procedure for the node if it ends up on an empty slot. The number of collisions for the 52 cities using 541 as our mod value for the hash function provided in our task description, totaled 4 collisions.
+
+\section*{Search for shortest path}
+
+    The approach for this assignment regarding the search for the shortest path mainly concerns the traversal using depth-first. Since the graph is of circular paths, the cases for endless loops are prevalent. To account for this we will approach the depth-first search through two different implementations, the first concerns a naive approach declaring a max value to break out of the loop if a distance is greater than the max value, and the second is adding the city in a processed set of cities as to make sure to not enter it again. Both methods use recursion to try all the different paths.
+
+    \subsection*{Naive}
+
+        The method starts with checking if the max value is less than zero, meaning that the procedure has met its condition to break out of the loop. If the max value is still of a positive number, the traversal to another city connecting the current city is made. This is repeated to traverse as far as possible to our destination before backtracking. This procedure is done for all neighboring cities. The max distance for every recursive call is decreased by the distance specified in the \texttt{Connection} object. Updating the shortest distance is if only the distance that is being discovered is of a smaller value than our currently defined shortest distance. The following code snippet is of the naive solution to depth-first.
+\begin{minted}{java}
+private static Integer shortest(City from, City to, 
+                                        Integer max) {
+    if (max < 0)
+        return null;
+    if (from == to)
+        return 0;
+    Integer shrt = null;
+    for (int i = 0; i < from.neighbors.length; i++) {
+        if (from.neighbors[i] != null) {
+            Connection conn = from.neighbors[i];
+            Integer temp = shortest(conn.city, to , 
+                                        max - conn.distance);
+            if(temp != null && 
+                (shrt == null || shrt > temp + conn.distance)){
+                shrt = temp + conn.distance;
+            }
+        }
+    }
+    return shrt;
+}
+\end{minted}
+
+    \subsection*{Better}
+
+        The only difference opposed to the first approach is just checking through an iterator of our array of cities, whether the connecting city has already been discovered or processed and returning null if it exists. This solution should mean that the requirement for a max value is not needed since we do not end in an endless loop of reentering the previous city. However, this affects performance since the procedure looks through every city. To account for performance, the max value is defined if we enter the destination, as the other paths that are greater than the max value are not relevant when accounting for the shortest path.
+
+\section*{Benchmarks}
+
+    The benchmarks for this assignment consist of gathering the execution times to different destinations from different cities using the naive method of having a max value. The test samples are specified in the description of the assignment. The same samples will be used for the better implementation of depth-first to identify any improvements. 
+    
+    The second benchmark concerns making a table with execution times of paths starting from Malmö to cities further and further away, to determine if there is any relationship between distance and execution time.
+
+    \subsection*{Different paths}
+
+        The different paths that were captured for this assignment are presented in the following table, with the execution time of the naive approach and the better approach, as well as distance.
+        \begin{table}[h]
+        \begin{center}
+        \begin{tabular}{l|c|c|c}
+        \textbf{Path} & \textbf{Naive} & \textbf{Better} & \textbf{Distance} \\
+        \hline
+        Malmö to Göteborg      & 1014 ms & 337 $\mu$s   & 153 min\\
+        Göteborg to Stockholm  & 1110 ms & 457 $\mu$s   & 211 min\\
+        Malmö to Stockholm     & 1023 ms & 85 $\mu$s    & 273 min\\
+        Stockholm to Sundsvall & 743 ms  & 3110 $\mu$s  & 327 min\\
+        Stockholm to Umeå      & Gave up & 10190 $\mu$s & 517 min\\
+        Göteborg to Sundsvall  & Gave up & 6520 $\mu$s  & 515 min\\
+        Sundsvall to Umeå      & 3 ms    & 3 ms         & 190 min\\
+        Umeå to Göteborg       & 2340 ms & 600 $\mu$s   & 705 min\\
+        Göteborg to Umeå       & Gave up & 30620 $\mu$s & 705 min\\
+        \end{tabular}
+        \end{center}
+        \end{table}
+        The table suggests a significant improvement with the exception of Sundsvall to Umeå. The explanation for this is that Umeå is indexed at the third position of neighbors to Sundsvall out of 3 total neighbors. The depth-first traversal concerns the traversal to the deepest node and backtracking for the two first neighbors before finding the shortest path. The flexible maximum path does not concern the following path since we find the shortest path at the end and we will therefore only declare the max value.
+        
+        The following problem with the paths of Stockholm to Umeå, Göteborg to Sundsvall, and Göteborg to Umeå is how depth-first works with repetition to the same vertice. This results in a big loop testing every circular path that is within our max value. 
+
+    \subsection*{From Malmö}
+
+        The captured cities that were further and further away from the starting city of Malmö were: Lund, Helsingborg, Halmstad, Göteborg, Kalmar, Linköping, Stockholm, Uppsala, Gävle, Sundsvall, Umeå, and Kiruna. The following table is of the running time using the improved version of depth-first and the specified distance between the paths.
+        \begin{table}[h]
+        \begin{center}
+        \begin{tabular}{l|c|c}
+        \textbf{From Malmö to} & \textbf{Better} & \textbf{Distance} \\
+        \hline
+        Lund        & 14 $\mu$s    & 13 min\\
+        Helsingborg & 893 $\mu$s   & 48 min\\
+        Halmstad    & 695 $\mu$s   & 85 min\\
+        Göteborg    & 377 $\mu$s   & 153 min\\
+        Kalmar      & 12200 $\mu$s & 160 min\\
+        Linköping   & 42 $\mu$s    & 169 min\\
+        Stockholm   & 91 $\mu$s    & 273 min\\
+        Uppsala     & 322 $\mu$s   & 324 min\\
+        Gävle       & 572 $\mu$s   & 383 min\\
+        Sundsvall   & 3180 $\mu$s  & 600 min\\
+        Umeå        & 20018 $\mu$s & 790 min\\
+        Kiruna      & 77400 $\mu$s & 1162 min\\
+        \end{tabular}
+        \end{center}
+        \end{table}
+        The table suggests no relation between distance and running time. This could be explained by the same example using the path from Sundsvall to Umeå. The issue is how the neighbors of each processed city are ordered and this is a general problem within depth-first.
+
+\section*{Conclusion}
+
+    Using depth-first to solve a real-life problem of this size is not really an optimal practice. The issue with the current implementation lies in not remembering the path from the previous city. The program will always look for all the possible paths when backtracking. The issue concerns how the traversal of depth-first works and this is where a general shortest path algorithm is way more preferable.
+    
+    
+\end{document}

@@ -1,0 +1,151 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\begin{document}
+
+\title{
+    \textbf{Quick sort}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will implement the sorting algorithm known as quick sort. Quick sort is a recursive sorting algorithm, like merge sort but has a tendency to be quicker in comparison to other recursive sorting algorithms. This assignment consists of implementing the following sorting algorithm for the data structures of an array and a linked list. 
+    
+    The benchmarks presented will give us a definitive answer to whether one data structure is preferable over the other in this given context.
+    
+\section*{Quick sort}
+
+    The quick sort method is a recursive algorithm, meaning that it calls on itself to smaller instances. Each instance of the algorithm is centered around a given pivot, which depending on the compared values is either set to be larger or smaller. The following operation is called partitioning and is the key process of this algorithm. The idea presented is to divide the data structure into smaller sequences through these two set groups and then place the pivot element at its right position, meaning between the smaller and larger groups of elements. It is through recursion that the smaller instances are further divided and will through this be sorted.
+
+    \subsection*{Array implementation}
+
+        The first implementation of the quick sort algorithm is through the use of arrays. The implementation consists of a static method \texttt{sort}, that takes two indices, a lower bound and higher bound, these represent the elements between to be sorted. If the lower bound is of a smaller value than the higher bound, we will start to divide our array into smaller sequences through the recursion calls. As a requirement for this assignment, it is not allowed to create temporary arrays to store the smaller or larger values, the values of the sequence should only be swapped in our given array. 
+
+        To accommodate for this the static method of \texttt{partition} is in practice. The method consists of swapping the values in accordance with a given pivot point, which most examples suggest should be of the last element in sequence since the traversal of the sequence is the easiest to implement. The operation also keeps track of the midpoint of the array, where we will insert our pivot, thus dividing the array. The traversal is done through a for loop where we compare the given value in our array to our pivot point. If the condition is met of the pivot being of a larger value, we will increment our mid pointer and swap the following value to the indices of the compared value and the mid index. After the traversal, the insertion of the pivot point to the middle index is practiced. The return value is of the middle index and this is used to sort the array in smaller bits since there are smaller values to the left of our middle index and larger values to the right of our middle index. The following code snippet is of our \texttt{sort} and \texttt{partition} methods. 
+
+\begin{minted}{java}
+static void sort(int arr[], int low, int high) {
+        if (low < high) {
+            int mid = partition(arr, low, high);
+
+            sort(arr, low, mid - 1);
+            sort(arr, mid + 1, high);
+        }
+    }
+static int partition(int arr[], int low, int high) {
+    int pivot = arr[high];
+    int mid = low - 1;
+    
+    for (int j = low; j < high; j++) {
+        if (arr[j] < pivot) {
+            mid++;
+            int temp = arr[mid];
+            arr[mid] = arr[j];
+            arr[j] = temp;
+        }
+    }
+    mid++;
+    int temp = arr[mid];
+    arr[mid] = arr[high];
+    arr[high] = temp;
+    return mid;
+}
+\end{minted}
+        
+    \subsection*{Linked list implementation}
+
+        The implementation of the sorting algorithm for linked lists is a bit different since the swapping of values is a cumbersome process of constantly having to traverse starting from the head. The process is eliminated with the creation of two empty linked lists and adding the values in accordance with the same conditions, of being smaller or larger than the pivot value. To also eliminate time complexity, we will have a second link reference to the last element in the sequence, also called the tail. The choice of the pivot value for this case is easier if the pivot is of the head of our linked list and we start the traversal as the next node to our head.
+
+        The list is now divided into three parts, the group of elements that are smaller than the pivot, the group of elements that are larger than the pivot, and our pivot. The data sequence is required to have the smaller values to the left of our pivot and the larger values to the right of our pivot. The process is to create a link reference to the head of the list with the larger values through our pivot node and have the next link reference of the tail of our list with smaller values to be of our pivot node. Thus creating a linked list from the head of the smaller list to the tail of the larger list, with a pivot node in between. 
+
+        The corner case to consider is if one of our smaller or larger lists is of 0 elements since the references to the head or tail of each list are null. The implication of the smaller list consisting of 0 elements, means that the pivot is the head of the smaller list. The same applies to the larger list consisting of 0 elements, meaning that the sequence stops at our pivot point. The following code snippet is of the implementation for quick sort in a linked list.
+
+\begin{minted}{java}
+public static LinkedList quickSort(Node head, Node tail) {
+    if (head == null || tail == null || head == tail)
+        return new LinkedList(head, tail);
+    Node pivot = head;
+    LinkedList smaller = new LinkedList(null, null);
+    LinkedList larger = new LinkedList(null, null);
+    Node current = head.next;
+    while(current != null){
+        Node next = current.next;
+        current.next = null;
+        if(current.value < pivot.value){
+            smaller.add(current);
+        }
+        else{
+            larger.add(current);
+        }
+        current = next;
+    }
+    smaller = quickSort(smaller.head, smaller.tail);
+    larger = quickSort(larger.head, larger.tail);
+    if (smaller.tail != null) {
+        smaller.tail.next = pivot;
+    } else {
+        smaller.head = pivot;
+    }
+    pivot.next = larger.head;
+    if (larger.tail != null) {
+        return new LinkedList(smaller.head, larger.tail);
+    }
+    return new LinkedList(smaller.head, pivot);
+}
+\end{minted}
+
+\section*{Benchmarks}
+
+    The benchmark for this assignment is to compare the two different implementations of a quick sort using the data structures of an array and a linked list. Since the execution times are dependent on how sorted the sequence is, the prerequisites are that the same data structure is of the same sequence of values. The following graph is of the execution times for quick sort.
+    \begin{center}
+    \begin{tikzpicture}
+    \begin{axis}[
+        title={Execution time of quick sort},
+        xlabel={Amount of elements},
+        ylabel={Time given in \[\mu\]s},
+        xmin=0, xmax=102000,
+        ymin=0, ymax=12000,
+        xtick={0,12800,25600,38400,51200,64000,76800,89600,102400},
+        ytick={0,3000,6000,9000,12000},
+        legend pos=north west,
+        ymajorgrids=true,
+        grid style=dashed,
+    ]
+    
+    \addplot[
+    color=blue,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,2.5)(200,5.2)(400,12.1)(800,25.4)(1600,55.5)(3200,122)(6400,264.2)(12800, 577.1)(25600,1228.5)(51200,2586.9)(102400,5554.9)
+    };
+    \addlegendentry{Array}
+
+    \addplot[
+    color=red,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,5.4)(200,12.7)(400,16.2)(800,36.2)(1600,80.7)(3200,182.2)(6400,418.9)(12800, 932.1)(25600,2172)(51200,4914.1)(102400,10550.4)
+    };
+    \addlegendentry{Linked list}
+
+    \end{axis}
+    \end{tikzpicture}
+    \end{center}
+    The graph suggests that the time complexity of the quick sort method, given the prerequisites of capturing the best-case scenario, is linearly dependent on the input size. However, since the algorithm divides the sequence into smaller instances, the time complexity is at an average logarithmically dependent on the input size and could be expressed as $O(n \log n)$ in big O-notation. The graphs also suggest that the array implementation is far better in regard to execution time, with half the execution time of the linked list implementation for a sample size of 100,000 elements.
+\section*{Conclusion}
+
+    The implementation of a quick sort algorithm for the data structure of an array is far superior when it comes to cutting down execution time. The suggestion that a linked list could be less expensive than its counterpart of an array, does not seem to be in practice with the given measurements. The implementation of a quick sort for a linked list is however a bit simpler with regard to the number of code lines, there are just a few corner cases to consider. As far as time complexities are concerned, the following two implementations are somewhat parallel to each other, meaning that they both follow the same time complexity of $O(n \log n)$. 
+        
+    
+\end{document}

@@ -1,0 +1,160 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\begin{document}
+
+\title{
+    \textbf{Dijkstra's algorithm}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will explore the algorithm of Dijkstra shortest path algorithm and expand the previous assignment of finding the shortest path of a rail network that was represented in the data structure of the graph. The strengths of Dijkstra's algorithm opposed to the approach of depth-first lie within remembering the path taken. The algorithm is also optimal in the way that it could stop the search as soon as it finds the destination since that will be the shortest path.
+    
+\section*{Dijkstra's algorithm}
+
+    Dijkstra's algorithm utilizes a priority queue to order the different paths to nodes by distance. The code for this assignment uses the \texttt{PriorityQueue} class from \texttt{java.util} and to order the priority queue the \texttt{EntryComparable} class that extends \texttt{Comparator<Entry>} will be used. An \texttt{Entry} object holds the city, distance, and the path taken as a \texttt{LinkedList} of cities. The algorithm also holds checks for visited cities, this is simply just a set of cities that utilizes a hash function to account for better performance.
+
+    As a first the first entry is added to the queue with a distance of 0, and the path is empty. The algorithm then starts by removing the first entry in the queue. For every connecting city to the removed entry, we want to add or update entries with every city and its distance, whilst also updating the path taken. The condition to add is if the city has not been visited yet and the condition to update is if the entry in our queue is of a higher distance than the current distance being explored. The algorithm ends if we are at our destination, returning only the entry and therefore only retrieving the path and distance between our starting city and destination, or if the queue is empty, returning a list of entries consisting of every path to every city from our starting city.
+    
+    \subsection*{PriorityQueue implementation}
+
+        An entry in the \texttt{PriorityQueue} holds the city, distance, and path. The factor that determines the order in this implementation concerns the value of distance. The following code snippet is of \texttt{EntryComparable} that extends the \texttt{Comparator<Entry>} and specifies that the shorter distance is prioritized.
+\begin{minted}{java}
+public class EntryComparable implements Comparator<Entry> {
+    @Override
+    public int compare(Entry node1, Entry node2) {
+        if (node1.distance < node2.distance)
+            return -1;
+
+        if (node1.distance > node2.distance)
+            return 1;
+
+        return 0;
+    }
+}    
+\end{minted}
+        
+    \subsection*{Algorithm implementation}
+
+        The method starts with initializing the priority queue of entries, an array of visited cities that are just indexed using the hash function that was used in creating the graph, and a linked list of cities consisting of the path taken. The first entry of the starting city is added to the queue and is marked within our visited cities.
+
+        The algorithm then starts by removing the first entry and for every connection, we will calculate the new distance to the connection. The path taken is retrieved by cloning the linked list in our entry object. If the connecting city is not present in the array of visited cities, the city is added to the path, and a new entry is added to the queue with the connecting city, its calculated distance, and its path to the connecting city. If the connecting city is already present in the array of visited cities and is found in our queue, we want to update its distance value if it is greater than the newly calculated distance and update its path. The following code snippet is a helper function to check if a city has been processed or not, if it has not it marks the city as visited and returns false. The function does account for the 4 collisions using 541 as a mod value.
+\begin{minted}{java}
+private static boolean isVisited(City[] visited, String name) {
+    Integer i = hash(name);
+    while (visited[i] != null) {
+        if (visited[i].name.equals(name)) {
+            return true;
+        }
+        i++;
+        i %= mod;
+    }
+    visited[i] = new City(name);
+    return false;
+}
+\end{minted}
+
+        To retrieve the path to one destination, the algorithm ends when the entry that is removed from the queue is of the same city as the specified destination of our input. To retrieve the shortest path to every node from our starting city, the algorithm stops when the queue is empty, and every entry that is removed from our priority queue is added to a list of entries that is then later returned. The entry should consist of the destination, the shortest distance, and the path to the city. The following code snippet is for retrieving the shortest path to every node in our graph. The only difference is that instead of returning a list of entries, we only return the entry that is removed from the queue if it is the destination.
+\begin{minted}{java}
+public LinkedList<Entry> shortest(City from) {
+    PriorityQueue<Entry> queue = new PriorityQueue<>
+                                (new EntryComparable());
+    City[] visited = new City[mod];
+    LinkedList<City> path = new LinkedList<>();
+    LinkedList<Entry> entries = new LinkedList<Entry>();
+    
+    queue.add(new Entry(from, 0, path));
+    visited[hash(from.name)] = from;
+    while (!queue.isEmpty()) {
+        Entry temp = queue.poll();
+        entries.add(temp);
+        
+        for (int j = 0; j < temp.city.neighbors.length; j++) {
+            Connection conn = temp.city.neighbors[j];
+            int distance = conn.distance + temp.distance;
+            path = (LinkedList<City>) temp.path.clone();
+            
+            if(!isVisited(visited, conn.city.name)){
+                path.add(conn.city);
+                queue.add(new Entry(conn.city,distance,path));
+            }
+            else{
+                for (Entry entry : queue) {
+                    if(entry.city.equals(conn.city)){
+                        if(entry.distance > distance){
+                            path.add(conn.city);
+                            queue.remove(entry);
+                            queue.add(new Entry(conn.city, 
+                                        distance, path));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return entries;
+}
+\end{minted}
+        
+\section*{Benchmarks}
+
+    The benchmarks for this assignment concern measuring the time it takes from Malmö to Kiruna using Dijkstra's algorithm compared to the previous implementations using depth-first. The later benchmarks concern measuring the time it takes from a city to twelve different cities in Europe to determine the run-time complexity of the implementation of Dijkstra's algorithm.
+
+    \subsection*{Malmö to Kiruna}
+
+        The following table is of the execution times for the sample program for Malmö to Kiruna using the two implementations for finding the shortest path. 
+        \begin{table}[h]
+        \begin{center}
+        \begin{tabular}{l|c|c}
+        \textbf{Implementation} & \textbf{Execution time} & \textbf{Ratio} \\
+        \hline
+        Dijsktra's algorithm & 54 $\mu$s  & 1.00 \\
+        Better depth-fist    & 77400 $\mu$s & 1433\\
+        \end{tabular}
+        \end{center}
+        \end{table}
+        
+        Using Dijkstra's algorithm the following is the shortest path from Malmö to Kiruna: Lund, Hässleholm, Alvesta, Nässjö, Mjölby, Linköping, Norrköping, Södertälje, Stockholm, Uppsala, Gävle, Sundsvall, Umeå, Boden, Gällivare, Kiruna, which totals to a distance of 1162 min. The table suggests a decrease of nearly 100\% from the depth-first implementation to Dijkstra's algorithm.
+
+    \subsection*{Twelve cities}
+
+        The following table is of the distances to twelve different cities starting from Stockholm capturing the best time out of 1000 turns.
+        \begin{table}[h]
+        \begin{center}
+        \begin{tabular}{l|c|c|c}
+        \textbf{Stockholm to:} & \textbf{Execution time} & \textbf{Distance} & \textbf{size of \texttt{visited}}\\
+        \hline
+        Köpenhamn   & 22 $\mu$s & 316 min  & 58 \\
+        Oslo        & 24 $\mu$s & 374 min  & 64 \\
+        Berlin      & 30 $\mu$s & 697 min  & 75 \\
+        Helsingfors & 32 $\mu$s & 730 min  & 80 \\
+        Amsterdam   & 38 $\mu$s & 896 min  & 88 \\
+        Bryssel     & 41 $\mu$s & 935 min  & 91 \\
+        Prag        & 44 $\mu$s & 956 min  & 93 \\
+        Warsawa     & 46 $\mu$s & 1004 min & 97 \\
+        Paris       & 46 $\mu$s & 1048 min & 101\\
+        London      & 46 $\mu$s & 1068 min & 102\\
+        Venedig     & 53 $\mu$s & 1402 min & 119\\
+        Rom         & 67 $\mu$s & 1610 min & 128\\
+        \end{tabular}
+        \end{center}
+        \end{table}
+
+        The following table does suggest that there is a relation between the size of \texttt{visited} and the execution time. The size of \texttt{visited} is a measurement of how many cities were involved in the search affecting the run-time of our algorithm. With our visited nodes as our input, we could estimate that the run-time complexity is of a linear model, this could described as $O(n)$ in big O-notation with n as our input of total nodes that were processed before the search was stopped.
+        
+\section*{Conclusion}
+
+    Dijkstra's algorithm is a shortest path algorithm that is helpful in solving real-life problems concerning finding the shortest path between different entities, this case being a rail network. The algorithm is quick and most notably useful for finding the shortest path to every single node given a starting point. The algorithm scales linearly in accordance with the amount of nodes that have been processed before finding the destination.
+    
+\end{document}

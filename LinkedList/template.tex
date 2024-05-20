@@ -1,0 +1,152 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\begin{document}
+
+\title{
+    \textbf{Linked list}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will explore the data structure of a linked list. We will explore the time it takes to append two linked lists with each other, with appendages from a list varying in size and a fixed-sized list, and also the case from a fixed-sized list to a list varying in size. The case for appendage using arrays is also explored to determine if there is an advantage to using either data structure.  
+    
+\section*{Linked list}
+
+    A linked list is a data structure that is practical when handling dynamic data elements. The linked list consists of data elements known as a node or cell. The data elements consist of a data field that stores the data, and a second link field consisting of a reference to the next element in the data sequence. Thus creating a collection of data elements with a reference with a sequence-like structure from the first element in the list to the last element in the list. 
+    
+    A list with a single link field is referred to as a single linked list as opposed to a doubly linked list consisting of two link fields with a reference to the next element in the sequence and to its predecessor in the sequence.   
+
+    \subsection*{Implementation}
+
+        The implementation of a linked list in our case consists of a single field, referencing the head of the linked list, also known as the first element in the sequence. A constructor of the linked list accepts a parameter value of the head to declare the value of the head. For the linked list to be created a static method called \texttt{createLinkedList(int size)} was implemented with a parameter value of the data structure's size.
+\begin{minted}{java}
+public static LinkedList createLinkedList(int size) {
+    if(size < 1){
+        return new LinkedList(null);
+    }
+    Node node = new Node();
+    Node head = node;
+    for (int j = 0; j < size - 1; j++) {
+        node.next = new Node();
+        node = node.next;
+    }
+    return new LinkedList(head);
+}
+\end{minted}
+        The following code snippet is of \texttt{createLinkedList(int size)}. The condition to create a linked list is if the input size, representing the size of the list, is of a positive integer. The input size of 0 or a negative number, implies that there are no elements in the sequence and the return value is of a linked list object with a head value of null. However if the input is accepted to be a positive integer, the call to create the first node in the sequence is made and is stored temporarily in a variable known as head in accordance with it being the first element of the linked list. The next step consists of declaring the link field to be of a new node in the sequence, and this is looped to create a single linked list.
+
+    \subsection*{Append two linked lists}
+
+        The benchmark for this assignment is to measure the time it takes to append a linked list to another. The logic provided is to step in the sequence to where the link field of the node is null, implying that we have reached the last node in the sequence. The link field of the node will instead point to the head of the linked list that is passed as a parameter value. This will result in the last element of the first linked list being linked to the first element in the list to be appended.
+\begin{minted}{java}
+public void append(LinkedList b) {
+    Node node = this.head;
+    while (node.next != null) {
+        node = node.next;
+    }
+    node.next = b.head;
+}
+\end{minted}
+        The following code snippet is the implementation of the \texttt{append(LinkedList b)}, where the parameter value of \texttt{b} is the list that is to be appended. 
+    
+    \subsection*{Append two arrays}
+
+        The benchmark for this assignment also includes the case for appending the data structures of arrays. For this to be possible, the allocation of a large enough array is created and the values of both arrays will then be copied in sequence.
+\begin{minted}{java}
+for (int i = 0; i < turns; i++) {
+    int[] fixedArray = new int[100];
+    int[] dynamicArray = new int[n];
+    int[] temp = new int[100 + n];
+
+    for (int j = 0; j < fixedArray.length; j++) {
+        temp[j] = fixedArray[j];
+    }
+    for (int j = fixedArray.length; j < temp.length; j++) {
+        temp[j] = dynamicArray[j - fixedArray.length];
+    }
+}
+\end{minted}
+        The following code snippet is the logic to append a fixed array to a dynamic array. The procedure is to allocate a large enough array and copy the values from both arrays to the large enough array. This is done through two loops in sequence, where in this instance the large enough array first copies the values of the fixed array from index 0 to the length of the fixed array - 1. The latter part consists of starting from the next index of the array, in this example meaning the length of the fixed array, and copying the value from the dynamic array until the index is of the length of the large enough array - 1. 
+
+\section*{Benchmarks and conclusion}
+
+    The exact runtimes of each algorithm are irrelevant. But the following graph is a tool for us to better understand the time complexity of the data structure and how it scales with a given input size.
+
+    \begin{center}
+    \begin{tikzpicture}
+    \begin{axis}[
+        title={Execution time of the append operation},
+        xlabel={Amount of elements},
+        ylabel={Time given in \[\mu\]s},
+        xmin=0, xmax=1600,
+        ymin=0, ymax=4,
+        xtick={0,200,400,600,800,1000,1200,1400,1600},
+        ytick={0,1,2,3,4},
+        legend pos=north west,
+        ymajorgrids=true,
+        grid style=dashed,
+    ]
+
+    \addplot[
+    color=blue,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,0.2)(200,0.4)(300,0.6)(400,0.9)(500,0.9)(600,1.1)(700,0.9)(800,1)(900,1.2)(1000,1.3)(1100,1.5)(1200,1.5)(1300,1.9)(1400,2.1)(1500,2.2)(1600,2.1)
+    };
+    \addlegendentry{Fixed to dynamic}
+
+    \addplot[
+    color=red,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,0.1)(200,0.1)(300,0.2)(400,0.2)(500,0.2)(600,0.2)(700,0.2)(800,0.2)(900,0.2)(1000,0.1)(1100,0.1)(1200,0.1)(1300,0.1)(1400,0.1)(1500,0.1)(1600,0.1)
+    };
+    \addlegendentry{Dynamic to fixed}
+
+    \addplot[
+    color=green,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,0.4)(200,0.6)(300,0.8)(400,1.1)(500,1.4)(600,1.7)(700,1.4)(800,1.4)(900,1.6)(1000,1.9)(1100,2.2)(1200,2.7)(1300,2.5)(1400,3.3)(1500,2.6)(1600,3.3)
+    };
+    \addlegendentry{Array append}
+
+    \end{axis}
+    \end{tikzpicture}
+    \end{center}
+
+    \subsection*{Append a dynamic-sized linked list to a fixed-sized linked list}
+
+        For this instance, the runtime is dependent on how large the dynamic-sized linked list is. The reason is that we step in sequence to the last element in the sequence and enter and declare the link field to be the head of the fixed-size linked list. This means that the run time is dependent on the size of the dynamic-sized linked list. Since the process of stepping through the sequence is linear, the time complexity is $O(n)$ in big O-notation, where n stands for the size of the dynamic-sized linked list.
+
+    \subsection*{Append a fixed-sized linked list to a dynamic-sized linked list}
+
+        Like the previous case, the runtime of the append operation is dependent on the length of the first linked list. In this case, the first linked list is of a fixed size. Meaning that the input size, representing the size of the dynamic-sized linked list is irrelevant in the explanation of runtime for this case. If we take n into consideration as the input representing the size of the dynamic-sized linked list, the time complexity for this case will be in $O(1)$in big O-notation, meaning that the runtime should be constant, since the relevant factor is always fixed.
+
+    \subsection*{Array append}
+
+        For this case, the runtime should be dependent on the size of the large enough array to handle the elements of both arrays. The size of the relevant array is in our code example of 100 + n in length, where n stands for the length of the dynamic-sized array. This means that our time complexity for this case will be of $O(n)$ in big O-notation, where n should stand for the length of the large enough array. 
+        
+        The mathematical explanation to why this stands is that when handling a fixed-sized array, the input size of n should not affect the execution time and will always be constant, meaning that the time complexity for that case should be $O(1)$. If we work with a dynamic-sized array the execution time will however be dependent on the input size of n should affect our runtimes linearly. Meaning that the time complexity for this is of $O(n)$. Since the case handles a combination of both the expression will be of $O(1) + O(n) = O(n)$. For two equally large dynamic-sized arrays where the length is dependent on the input size the same applies, so the mathematical expression for this example will be $O(n) + O(n) = O(n)$
+
+    \subsection*{Push and pop operations for linked list}
+
+        As a last measurement for this assignment, we will discover how the push and pop operation for a stack utilizes a linked list as a data structure compared to the option of arrays that we did in our first assignment.
+
+        The difference that is present is that we step in sequence until we are on top of the stack and declare the link field of the last element to be of the item that we push. The same applies to pop, where we step in sequence until we are in the element that is right before the last one. We will then store the next element in a temporary variable and we will clear the link field of our current element and return the temporary variable. This implies that the whole operation is dependent on the size of the linked list and will therefore have a time complexity of $O(n)$ as opposed to the array stack where the utilization of a pointer is present and eliminates the runtime being affected by the input size.     
+    
+    
+\end{document}

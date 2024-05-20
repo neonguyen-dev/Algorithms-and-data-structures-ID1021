@@ -1,0 +1,150 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+
+\begin{document}
+
+\title{
+    \textbf{Stack}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will implement and make use of a stack as a data structure. We will do this by creating a calculator that utilizes \textit{reverse Polish notation}. This was a common way to express mathematical expressions with the use of an HP-35 calculator, commonly referred to as the first \textit{scientific} pocket calculator.
+
+    The practice of the stack in the given context is pushing values into the data structure and performing the following operand by popping two values on top of the stack and pushing the result back on top of the stack.
+
+\section*{Reverse Polish notation and Stack}
+
+    \textit{Reverse Polish notation} is the practice of the operand following the operators. So instead of expressing (1 + 2) * 3 as such, the following expression is expressed as 1 2 + 3 * in \textit{reverse Polish notation}. The benefits are eliminating the use of parenthesis and thus making the computation quicker.
+
+    The stack is a data structure with a linear order that utilizes the methods of push and pop. The push method stores a given value in the data structure and increments the pointer to point to the next position in the data structure. The pop method decrements the pointer, takes the value on top of the stack, and returns it, whilst also clearing the value from the stack. Thus the principles of "last in, first out" are followed. For this assignment, we are supposed to implement two different types of stack, static and dynamic.
+
+    Since static and dynamic are both a stack, we can create an abstract class with abstract methods of push and pop. Thus making it easier for us to switch between the two different versions. Both versions should also include a pointer and a stack that holds integers.
+
+\begin{minted}{java}
+public abstract class Stack {
+    public abstract int pop() throws Exception;
+    public abstract void push(int value) throws Exception; 
+}    
+\end{minted}
+    
+
+\subsection*{Static Stack}
+
+    A static stack refers to a fixed-sized stack. The size of the stack is specified during the initialization of the object. The following benefit is an easy implementation of a stack, but the system is rigid and can easily result in a pointer being out of bounds, or is more commonly referred to as a stack overflow.
+
+\begin{minted}{java}
+public int pop() throws Exception{
+    pointer--;
+    if(pointer < 0){
+        throw new Exception("Stack Underflow");
+    }
+    int value = stack[pointer];
+    stack[pointer] = 0; 
+    return value;
+}
+
+public void push(int value) throws Exception{
+    if(pointer >= stack.length){
+        throw new Exception("Stack Overflow");
+    }
+    stack[pointer++] = value;
+}
+\end{minted}
+
+\subsection*{Dynamic Stack}
+
+    A dynamic stack is more flexible and eliminates the case of a stack overflow. Dynamic stack refers to increasing the number of elements in a stack when encountering a stack overflow. This is performed during the \textit{push} operation. Since we allocate more memory due to increasing the elements in the stack, it is a good practice to consider the possibility of decreasing the number of elements in the stack. As opposed to extending, the \textit{pop} operation is responsible for decreasing the stack on a given condition.
+
+\begin{minted}{java}
+if(pointer == (stack.length/4)){
+int[] newStack = new int[stack.length/2];
+for (int i = 0; i < stack.length/2; i++) {
+    newStack[i] = stack[i];
+}
+stack = newStack;
+\end{minted}
+    The following code snippet is added to the pop operation. The condition for decreasing the stack is given by the pointer being a quarter of the length of the stack, and should therefore decrease the size of the stack by half. This should also eliminate the case of increasing the stack immediately after decreasing the stack, giving the margin to a stack overflow by 50\% percent of the size of the stack.
+
+\begin{minted}{java}
+int[] tempStack = new int[stack.length*2];
+for (int i = 0; i < stack.length; i++) {
+    tempStack[i] = stack[i];
+}
+stack = tempStack;
+\end{minted}
+    The following code snippet replaces the exception that is being thrown in the push operation. A temporary stack is created with double the amount of elements of the main stack and copies the content of the main stack to the temporary stack. The main stack is then declared to be of the temporary stack, thus making the main stack double the amount of elements as its predecessor. 
+    
+\section*{Sample program and benchmark}
+
+    The sample program is as described in the assignment. The program includes code where we push a thousand elements and then pop them and return the execution time. We let the static stack be of 1024 elements whilst letting the dynamic stack contain only 4 elements at the start. This program is called through a function that tests the program a hundred times and returns the minimum execution time out of the hundred times the program is executed.
+
+\subsection*{Sample program}
+
+    The following code snippet is of the sample program:
+
+\begin{minted}{java}
+public static double pushAndPop(int n, boolean dynamic) throws Exception {
+    Stack stack;
+    if (dynamic)
+        stack = new Dynamic(4);
+    else
+        stack = new Static(1024);
+        
+    long startTime = System.nanoTime();
+    for (int i = 0; i < n; i++) {
+        stack.push(i);
+    }
+    for (int i = 0; i < n; i++) {
+        stack.pop();
+    }
+    long endTime = System.nanoTime();
+    
+    return (endTime - startTime);
+}    
+\end{minted}
+
+    The following code is passed through a bench function as described in \texttt{arrays.pdf} assignment.
+
+\begin{minted}{java}
+public static double bench(int n) throws Exception {
+    int turns = 100;
+    double min = Double.POSITIVE_INFINITY;
+    for (int i = 0; i < turns; i++) {
+        double t = pushAndPop(n, true);
+        if (t < min) {
+            min = t;
+        }
+    }
+    return min;
+}
+\end{minted}    
+
+\subsection*{Benchmark}
+
+    The following table presents the times of the two different stacks:
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{l|c|c}
+\textbf{Stack} & \textbf{min time} & \textbf{ratio}\\
+\hline
+  Static      &  0.87 µs & 1.00\\
+  Dynamic     &  1.63 µs & 1.87\\
+\end{tabular}
+\end{center}
+\end{table}
+    The following results suggest that a dynamic stack takes at a minimum more than double the time of the minimum time of utilizing a static stack. Thus concluding that a dynamic stack is more expensive by an approximation of two times the cost of a static stack. 
+
+\section*{Conclusion}
+    
+    Arguing whether it is worth it is a matter of context. In smaller applications, a dynamic stack is something to consider since it is more flexible, and the penalty of choosing the more costly one is not significant enough to make a big difference. But this does not apply to larger applications, let's say an application where the static stack takes one hour of computation, the following will result in an extra hour of computation for the dynamic stack.
+    
+\end{document}

@@ -1,0 +1,158 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\begin{document}
+
+\title{
+    \textbf{Doubly linked list}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will dive deeper into the data structure known as a linked list. The linked list is a flexible data structure that is quite useful when handling dynamic elements, as was explored in our previous assignment. The advantage of using a linked list as a data structure is that it is dynamic when adding or removing elements, and it eliminates the factor of having to allocate a temporary array and having to copy the values in sequence.
+
+    We will explore the practices of utilizing two link fields instead of one, in the context of a linked list. The concept is referred to as a doubly linked list.
+    
+\section*{Doubly linked list}
+
+    A doubly linked list is a data structure where the elements consist of cells or nodes, that consist of three data fields. The first field is allocated to storing the primitive data, and the other two are pointers to the previous element in the data sequence and the next element in the data sequence. The first element in the sequence is referred to as the head and will be the first reference pointer when utilizing this sort of data structure since the other elements could be found with the practices of a loop, where we step in the sequence to the next element in the sequence until the link field of the last element is of null, implying that we have reached the last element.
+
+    \subsection*{Implementation}
+
+        The implementation of a linked list object consists of a single field, referencing the head of the linked list. A constructor of the linked list accepts a parameter value of the head object to declare the value of the head of the \texttt{LinkedList} object. For the doubly linked list to be created a static method called \texttt{createLinkedList(int size)} was implemented with a parameter value of the data structure's size.
+\begin{minted}{java}
+public static DoublyLinkedList createLinkedList(int size) {
+    if(size < 1){
+        return new LinkedList(null);
+    }
+    Node node = new Node();
+    Node head = node;
+    for (int j = 0; j < size - 1; j++) {
+        node.next = new Node();
+        node.next.prev = node;
+        node = node.next;
+    }
+    return new DoublyLinkedList(head);
+}
+\end{minted}
+        The following code snippet is of the static method \texttt{createLinkedList(int size)}. The condition to create a linked list is still the same as the previous example of our last implementation of a single linked list. The condition being passed is when the input is of a positive integer, implying the size of the linked list. When given a negative integer or zero, the implication is of an empty linked list, therefore returning an object with the head value of null. 
+        
+        The difference when creating a doubly linked list is that the link field known as \texttt{prev} is also declared to be of the previous node in the sequence.  
+
+    \subsection*{Unlink operation}
+
+        The operation to be measured in this assignment is the unlink operation. The unlink operation consists of passing a reference to the node or cell to be unlinked from the data sequence. The benefit of using a doubly linked list for this task is eliminating the factor of having to step in sequence until you find the element that is passed through the parameter. The efficiency comes from the two link fields references to the previous and next node in sequence. Thus making it possible to connect the previous node to the next node.
+\begin{minted}{java}
+public void unlink(Node node){
+    if(node.prev == null && node.next == null){
+        head = null;
+    }
+    else if(node.prev == null){
+        head = node.next;
+        head.prev = null;
+    }
+    else if(node.next == null){
+        node.prev.next = null;
+    }
+    else{
+        node.next.prev = node.prev;
+        node.prev.next = node.next;
+        node = null;
+    }
+}
+\end{minted}
+        The following code snippet is the implementation of the \texttt{unlink(Node node)} method in the class of \texttt{DoublyLinkedList}. The first if condition is the case for the element that is being passed having no references to other fields. This could mean that the list is of length 1. Assume that the node that is being passed is of a valid argument.
+        
+        The second if condition consists of checking if the link field to the previous element is null, implying that the node is the first in sequence, also known as the head. The operation is therefore only keen on changing the value of the head to be the next in sequence and declaring the prev link field of the new head element to be null. 
+        
+        If that is not the case and the next link field of the element is null, the parameter value is of an element that is last in sequence. To unlink the following element, the next link field of the previous element to the current element is declared to be null.
+
+        In standard practice, the next element to the current element should have a reference to the previous element to the current element, and the same logic applies to the previous element to the current element and its reference to the next in sequence, which should be the next element to the current element. To properly unlink the current element, the declaration of null to the current element reference is in practice.
+\begin{minted}{java}
+public void unlink(Node node){
+    if(head == node){
+        head = node.next;
+        node.next = null;
+        return;
+    }
+    
+    Node current = head;
+    while(current.next != null){
+        if(current.next == node){
+            Node unlinkedNode = current.next;
+            current.next = current.next.next;
+            unlinkedNode.next = null;
+            return;
+        }
+        current = current.next; 
+    }
+}
+\end{minted}
+        The following code snippet is of the \texttt{unlink(Node node)} in our single linked list. The difference to the doubly linked list is the step in sequence until the next element of the current is the same as the parameter value. The next element to the current is stored in a temporary variable and the link field of the current will be of the next element's link field reference. The unlinked element's link field is then cleared. 
+    
+    \subsection*{Insert operation}
+
+        The next operation to be measured is an insert operation. The following operation consists of passing an element and placing it as the head of the data sequence.
+\begin{minted}{java}
+public void insert(Node node){
+    if(head == null){
+        return;
+    }
+    node.next = head;
+    head.prev = node;
+    node.prev = null;
+    head = node;
+}
+\end{minted}
+        The following code snippet is of the \texttt{insert(Node node)} method in our implementation of a doubly linked list. The logic that is provided is passing the element to be inserted and declaring the link field to the next to be of the current head element. The same goes for the current head element and its link field to the previous in sequence. Since the operation consists of placing an element in the first sequence, the reference to the previous element is declared to be null. The head field is then declared to be of the element that is passed as the parameter value.
+\begin{minted}{java}
+public void insert(Node node){
+    node.next = head;
+    head = node;
+}
+\end{minted}
+        The following code snippet is of the \texttt{insert(Node node)} method in our implementation of a single linked list. The implementation is a bit easier compared to a doubly linked list since there is only one link field that is in consideration.
+        
+\section*{Benchmarks and conclusion}
+
+    The benchmarks are based on how long it takes to unlink a randomly selected element and insert it for a fixed amount of times. The following table is of the runtimes for the following operations.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{l|c|c|c}
+\textbf{n} & \textbf{Doubly linked list} & \textbf{Single linked list} & \textbf{ratio}\\
+\hline
+100      &  8.7 µs & 71.5 µs & 8.2\\
+200      &  8.8 µs & 136.0 µs & 15.5\\
+300      &  13.3 µs & 198.6 µs & 14.9\\
+400      &  8.8 µs & 254.0 µs & 28.9\\
+500      &  8.7 µs & 322.7 µs & 37.1\\
+600      &  8.6 µs & 380.6 µs & 44.3\\
+700      &  8.7 µs & 414.8 µs & 47.7\\
+800      &  8.7 µs & 479.8 µs & 55.1\\
+900      &  8.9 µs & 536.5 µs & 60.3\\
+1000     &  8.7 µs & 544.6 µs & 62.6\\
+1100     &  8.6 µs & 635.6 µs & 73,9\\
+1200     &  8.6 µs & 658.1 µs & 76,5\\
+1300     &  8.6 µs & 639.4 µs & 74.3\\
+1400     &  9.3 µs & 684.4 µs & 73.6\\
+1500     &  8.6 µs & 694.0 µs & 80.7\\
+1600     &  8.8 µs & 738.6 µs & 83.9\\
+\end{tabular}
+\end{center}
+\end{table}
+    The following benchmarks suggest that a doubly linked list is far more efficient than a single linked list in the context of unlinking an element and inserting an element. 
+    
+    In the context of time complexities, it is reasonable to assume that the time complexity of these operations in succession for a doubly linked list is $O(1)$ given that the operations run for a fixed amount of times. Both operations in itself are of $O(1)$, meaning that the runtime for both operations is constant. In a mathematical expression, the following case could be explained through $O(1) * O(1) = O(1)$. 
+    
+    The time complexity for the worst-case scenario of these operations in succession for k amount of times is $O(n)$. The reason is because of the unlink operation, which instead steps in sequence until it finds a match or no match, this implies that the time complexity at worst is of $O(n)$, whilst the insert method is at a constant $O(1)$. The mathematical explanation for this is the following: $O(n) * O(1) = O(n)$.
+\end{document}

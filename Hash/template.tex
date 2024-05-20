@@ -1,0 +1,97 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\begin{document}
+
+\title{
+    \textbf{Hash}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will explore the data structure known as a hash table. The hash table maps the key values of the data into a range of indexes of an array, known as a hash index. This process is more commonly known as hashing, where the key value of a data object is passed through a hash function, and is given a hash index. We will discuss the different ways to search for an item in the array format and highlight the benefits of implementing a hash table.
+    
+\section*{Search algorithms}
+
+    A search algorithm is a way to check and retrieve an item in a given data structure. Two implementations of a search algorithm were constructed with the given context of arrays, linear search, and binary search. The given file to read was a collection of different zip codes numbered in order from smallest to large.
+
+    \subsection*{Linear search}
+
+        Linear search is a sequential design of a search algorithm. The array is sequentially traversed and checks every element for a potential match. It is the easiest approach to a search algorithm and has a worst-case scenario of $O(n)$, where \textit{n} stands for the size of the array.
+        
+    \subsection*{Binary search}
+
+        Binary search is an interval design of a search algorithm. The prerequisite of these designs is for the array to be sorted since they divide the space in half for each step iteration. The time complexity for this search algorithm is at worst-case $O(\log n)$, where \textit{n} stands for the size of the array. 
+        
+\section*{Hash table}
+
+    A hash table is a data structure that makes use of a hash function, that computes a key value to an index into a table. The process of utilizing a hash function is called hashing and could be utilized by any function that can be used to map data to a unique key value. In this example, a division method of a hash function is in practice. It is the most simple method to implement and makes use of the modulo operation. The benefit of a hash table is that the retrieval of data could at best be accessed through a time complexity of $O(1)$, if we hash the key value to our unique index to an array.
+
+    \subsection*{Key}
+
+        A key is anything that can serve as an input to reference an object. It could be a string or an integer that is unique to an object stored in a data structure. For this assignment, the key value is based on the zip code of a given locality.
+    
+    \subsection*{Hash function}
+
+        A hash function is a mathematical function that transforms a key value into a unique hash key. The hash function for this assignment consists of dividing the key value by a given operator value. The remainder of the division operation is the given hash key. In computing, this operation is called modulo and can only result in a range from [0, divisor). The size of the array is therefore determined by the choice of our divisor. The trade-off for this implementation is the case of collisions, where two or more keys are mapped to the same index.
+
+    \subsection*{Buckets}
+
+        Buckets are a way to handle collisions in the context of hash tables. Buckets are a small collection of elements with the same shared hash index. The implementation of a bucket consists of allocating a two-dimensional array where the first dimension represents the bucket with a specified hash index. The second dimension represents the items with the shared hashed index. The bucket should by the specification of the assignment, be initialized with a size of only one element and whenever an entry is added to a bucket, the allocation of a larger array is in practice. This is however only a penalty taken when initializing the hash table with the entries and does not affect the search procedure for an element.
+
+        The other way of implementing buckets is to instead utilize a single-dimensional array. The idea is to start with the hash index and move to the next available slot in the array.
+
+    \subsection*{Retrieval of an element}
+
+        The main benefit of using a hash table as a data structure is that the search of an element is easily accessed through the input of our key and is computed through our hash function to specify the hash index of our smaller array. This process should scale with a constant time if the prerequisite of a unique mapped hash key value to each element is in practice. 
+        
+        To account for collisions and the implementation of a bucket, the search procedure consists of more than just returning the item with the specified hash index. The procedure starts with entering the bucket with the hash index and sequentially traversing and comparing each element until we find a match. This is to make sure that we access the right data and that an input outside of the input range, that still results in a valid hash index, does not return a valid item within the hash index. The buckets should have a good distribution of elements and each bucket should not be large enough for it to affect the running time. 
+        
+        The search procedure for the one-dimensional bucket implementation would stop on a match or if the entry is empty. The array should be evenly spaced and not too tight since the risk of running through and examining many elements could result in a much larger execution time.
+
+\section*{Benchmarks}
+
+    The benchmarks for this assignment make use of a file in a CSV format that consists of Swedish zip codes of different localities. The key value for each element is their respective zip code. The zip codes total 9675 entries. The lookup procedure takes the zip codes "115 15" and "984 99", to which the first is the first entry, and the latter is the last entry in our list of zip code entries. 
+    
+    This benchmark captures the execution time for the search operation of linear search, binary search, the space-inefficient array implementation using key value as our index, a hash table with a two-dimensional bucket implementation, and the one-dimensional bucket implementation. The first three entries utilize a parsing sequence to our string input, but since the zip codes are ordered in size we could parse the string to an int before adding it as our entry. The following measurements are also taken into consideration. 
+
+    \subsection*{Best modulo operator}
+
+        The determination process of a good modulo operator consists of accounting for the amount of collisions, as well as accounting for not allocating too large of an array that is necessary and also checking for a good distribution of elements in each bucket. A choice of a prime number as our modulo operator is the most preferable since that will contribute to the best distribution of data since it is most likely not evenly divisible with other numbers. With that in mind, the divisible number that fitted the following prerequisites was 17573. The following number creates buckets not larger than 3 and is a prime number. The total amount of collisions is 1538 and 100 of those are where three keys are mapped to the same index. With 9675 entries the amount of space that is wasted totals 7862 entries, which is not preferable at all, but it should not affect performance too much.
+
+    \subsection*{Search for "111 15" and "984 99"}
+
+        The following table is of the execution time of our different implementations for a lookup. The hash modulo operator for these captures is 17573.
+        \begin{table}[h]
+        \begin{center}
+        \begin{tabular}{l|c|c}
+        \textbf{Lookup} & \textbf{"111 15" min time} & \textbf{"984 99" min time} \\
+        \hline
+        Binary search string              & 400 ns & 900 ns\\
+        Linear search string              & 100 ns & 44800 ns\\
+        Space-inefficient string          & 400 ns & 600 ns\\
+        Binary search                     & 100 ns & 600 ns\\
+        Linear search                     & 0.0 ns & 15800 ns\\
+        Space-inefficient                 & 0.0 ns & 0.0 ns\\
+        Hash 2D-bucket                    & 0.0 ns & 100 ns\\
+        Hash 1D-bucket                    & 0.0 ns & 0.0 ns\\
+        \end{tabular}
+        \end{center}
+        \end{table}
+        The table suggests that the space-inefficient implementation and our bucket implementation using a one-dimensional array are the best in regard to execution time. However, the space-time trade-off leans towards time since 90\% of the array in our space-inefficient implementation. The lookup for our one-dimensional bucket implementation took 1 step to find the key 11115 and a total of 24 steps to find our 98499. 
+
+        The parsing from a string to an integer does affect execution time and is also a reason why the string inputs of the search methods are time-inefficient.
+\section*{Conclusion}
+
+    Using a hash table as a data structure is always a fight between space and time. The hash table is a quick data structure with regards to execution time but the argument around increased space usage is always a factor to consider when implementing the data structure. The hash table works around the issue since the most optimal way is to always allocate the data in a smaller format and not sacrifice performance. The solution is to use the right hash function and with the practices of modulo operation, the most optimal modulo operator, with regard to space and an even distribution of hash keys.
+    
+\end{document}

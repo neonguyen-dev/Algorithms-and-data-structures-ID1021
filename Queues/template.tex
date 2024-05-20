@@ -1,0 +1,148 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\begin{document}
+
+\title{
+    \textbf{Queue}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will discover the very common data structure known as a queue. The queue system is a common real-life scenario, where people wait in line to be served. The concept is the same in the context of a data structure, in the likes of the item being passed first is the one being served. Unlike the stack that utilizes the principle of \textit{last-in-first-out}, the queue utilizes the principle of \textit{first-in-first-out}.
+
+    Two implementations for a queue will be made for this assignment, an array implementation and a linked list implementation.
+    
+\section*{Queue}
+
+    The queue is a linear data structure that could be described as a backward stack. In that, it utilizes the principle of \textit{first-in-first-out}. The data structure is therefore open through both sides, in which you add values at the end and retrieve the values at the front. Thus creating a queue-like system.
+
+    \subsection*{Linked List implementation}
+
+        The easier implementation of a queue is the practice of using a linked list. The simplicity comes from the reference to our head in our linked list implementation, meaning the first element in our sequence of data. The idea presented is that the removal operation could easily be handled by returning just the head and then moving the head reference to the next in sequence. The add operation is a bit more complex since we have to step in sequence to reach the end of our list, which in regard to time complexity should scale this operation to be linearly dependent on the given size of our list. This could be eliminated with the help of a reference to the last element in the sequence, known as the tail. The add method should then be able to utilize the following reference to its advantage and have the link field be of the value we pass in as our parameters, the tail is then declared to be the last element in our list accordingly. Thus eliminating the need to step through our whole list to add an element. The following code is of that implementation for our \texttt{add()} and \texttt{remove()} methods:
+        \begin{minted}{java}
+public void add() {
+    if (head == null) {
+        head = new Node();
+        tail = head;
+        return;
+    }
+    tail.next = new Node();
+    tail = tail.next;
+}
+public Node remove() {
+    if (head.next == null) {
+        Node temp = head;
+        head = null;
+        return temp.node;
+    }
+    Node temp = head;
+    head = head.next;
+    return temp;
+}
+    \end{minted}
+        
+    \subsection*{Array implementation}
+
+        The array implementation of a queue is a bit more complex in that it takes into consideration a lot of corner cases that would either break or make the data structure inefficient. The gist of this implementation is the practice of using two pointers, \textit{i} and \textit{k}, that will increment and move along the allocated array depending on whether you add or remove an item.
+        \begin{minted}{java}
+public ArrayQueue(int size) {
+    array = new int[size];
+    k = 0;
+    index = 0;
+    this.size = size;
+}
+        \end{minted}
+        The first thing that was implemented was the constructor for the class of \texttt{ArrayQueue} to construct a large enough array to handle a given length of items. The \textit{index} and \textit{k} are initially declared to have the value of 0 since the queue is empty at initialization. As a last measurement, we keep track of the size of the array in a variable for the implementation of a dynamic queue using an array. 
+
+        For the operations \texttt{add(int item)} we will just add the item into the array with the use of our \textit{k} pointer, which represents the first free space to fill out our queue. For every call of add, the \textit{k} pointer is incremented to point at the next available slot. The gist is the same for the \texttt{remove()} method, where we increment the \textit{index} pointer to be the next element to be removed from our queue. The first approach would be to free the value in the array with the index of 0 and to just move the queue to be at the start index of 0 and constantly do that for every call on \texttt{remove()}, this will result in a costly operation, and we will just instead utilize the \textit{index} pointer to be of the value that is next in queue to be removed.
+
+        The corner cases for this implementation of a queue are as follows:
+        \begin{itemize}
+            \item If the \textit{index} pointer is equal to \textit{k} pointer. Implying that the queue is empty. The pointers should be reset to 0.
+            \item If you add an item and the \textit{k} pointer is equal to the size of the array. This means you have reached the last index of our array, and should therefore reset the \textit{k} pointer to 0.
+            \item If you remove an item in the queue and the \textit{index} pointer is equal to the size of the array. This implies that have reached the last index of our array, and should therefore reset the \textit{index} pointer to 0.
+            \item If after adding an item, the \textit{k} pointer is equal to the \textit{index} pointer, implying that the queue is full. The implementation of a dynamic queue will combat the following case.
+        \end{itemize}
+        \begin{minted}{java}
+public void add(int item) {
+    array[k++] = item;
+    if(k == size){
+        k = 0;
+    }
+}
+public Integer remove() {
+    if(index == k){
+        index = 0;
+        k = 0;
+        return null;
+    }
+    int temp = array[index];
+    array[index] = 0;
+    index++;
+    if(index == size){
+        index = 0;
+    }
+    return temp;
+}
+        \end{minted}
+        The following code snippet implements the solution for the first three bullet points of our corner cases and with the functionality intended for both operations of \texttt{add(int item)} and \texttt{remove()}.
+
+        \subsubsection*{Dynamic queue}
+
+            The limitation of utilizing an array for this task is that the allocation of an array in memory is of a fixed value in initialization. To create a dynamic queue you should allocate a temporary large enough array, copy the values from your full array, and declare the queue array to be the large enough array. The following code snippet was added in the \texttt{add(int item)} for the last corner case in our list.
+            \begin{minted}{java}
+if(k == index){
+    int[] temp = new int[size * 2];
+    
+    for (int i = index; i < size - 1; i++) {
+        temp[i - index] = array[i];
+    }
+    
+    for (int i = 0; i < k - 1; i++) {
+        temp[i + size - 1] = array[i]; 
+    }
+    
+    k = size;
+    size *= 2;
+    index = 0;
+    array = temp;
+}
+            \end{minted}
+            The allocation of a large enough array is made with the double amount of the given size of your array. The program then copies the values from \textit{index} to size - 1 is. The items from 0 to k - 1 are then copied starting from the next index in our temporary array. The k is then declared to be of the current size, and the index is set to 0. The quality-of-life variable size is updated to be of the length of our newly allocated temporary array. The array is then declared to be of the new large enough array.
+    \subsection*{Breadth first traversal}
+
+        The breadth-first traversal is a way to traverse through a tree-like structure starting at the root. The traversal order explores the elements of the same depth from left to right before moving on to the next depth. To implement this sort of traversal, the utilization of a queue is in practice. The root node is first added to our queue and for each call for \texttt{next()} in our iterator a remove call to the queue is in motion, and the left and right children are added to our queue, if there are any.
+
+        \begin{minted}{java}
+@Override
+public Integer next() { 
+    if(!hasNext()){
+        throw new NoSuchElementException();
+    }
+    BinaryTree.Node current = queue.remove();
+    if(current.left != null){
+        queue.add(current.left);
+    }
+    if(current.right != null){
+        queue.add(current.right);
+    }
+    return current.key;
+}
+        \end{minted}
+        
+    \subsection*{Conclusion}
+
+        The implementation of a queue using a linked list is far easier as opposed to using arrays, but it will always be more costly since primitive data is less expensive for the memory as opposed to dynamic elements. The consideration for the corner cases makes the array implementation cumbersome, and arguing whether it is worth it is a matter if you want to handle either primitive data or dynamic elements. The practices of this data structure are not rooted in the implementation of a breadth-first traversal for a tree but in the context of concurrent programs that run two or more processes that overlap each other, where a queue system is in action to pass the services in order from the first request to the latest request.
+        
+    
+\end{document}

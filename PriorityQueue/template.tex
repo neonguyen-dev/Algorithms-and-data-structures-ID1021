@@ -1,0 +1,195 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\begin{document}
+
+\title{
+    \textbf{Heap or priority queue}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will explore the data structure of a priority queue. Instead of the order being determined by when the item was added to the queue, the order will be determined by another factor. The implementations of this sort of data structure come in utilizing a linked list, a heap, an array, or a binary search tree. 
+    
+\section*{Priority queue}
+
+    A priority queue is a queue that bases its element with a given priority value. The order is therefore only determined by the priority value and not arranged in a way that utilizes the principles of \textit{first-in-first-out}. Items that are pushed with the same priority value as other items that are already in the queue still use the principles of \textit{first-in-first-out}, with the latest item being placed last. There are different approaches to implementing this sort of data structure. 
+    
+    For this assignment, we will approach the implementations of a priority queue using a linked list and a heap.  
+    
+    \subsection*{Linked list implementation}
+
+        The linked list implementation of a priority queue is a linear data structure like a  normal queue data structure. The operations of \texttt{add} and \texttt{remove} could be approached through two different ways. 
+        
+        The first approach includes the \texttt{add} method is the same approach as the normal queue, where we add items to the tail consecutively. The prerequisites for this implementation should mean that the approach to the \texttt{remove} method should traverse the queue to find the node with the highest priority. The following code should imply that our \texttt{add} method should be at a constant time complexity of $O(1)$ whilst the \texttt{remove} method should scale in accordance with the time complexity of $O(n)$. 
+        \begin{minted}{java}
+public Node remove() {
+    Node toRemove = head;
+    Node current = head;
+    while (current != null) {
+        if (current.priority < toRemove.priority) {
+            toRemove = current;
+        }
+        current = current.next;
+    }
+    current = head;
+    if(current == toRemove){
+        head = current.next;
+        return toRemove.priority;
+    }
+    while (current.next != toRemove) {
+        current = current.next;
+    }
+    current.next = current.next.next;
+    return toRemove;
+}
+        \end{minted}
+
+        The second approach includes the \texttt{add} method ordering the data sequence to store the higher priority closer to the head. This is done by traversing from the head until the condition of the next node is of a lower priority than the node to be inserted and inserting it between the current and the next node. The benefit of this is that the \texttt{remove} will be of a constant time where we remove just the head element and move the head reference to be next in sequence. The following code snippet is of the \texttt{add} method that scales linearly in accordance with $O(n)$. The logic consists of the corner cases for this implementation consisting of the head being of a smaller priority than our input of priority. We will traverse through our queue until we find the position to insert our node. 
+
+        \begin{minted}{java}
+public void add(Integer item, Integer priority) {
+    if (head == null) {
+        head = new Node(item, priority);
+        tail = head;
+        return;
+    }
+    Node current = head;
+    Node temp = new Node(item, priority);
+    if (head.priority > priority) {
+        temp.next = head;
+        head = temp;
+        return;
+    }
+    while (current.next != null && 
+    current.next.priority < priority) {
+        current = current.next;
+    }
+    temp.next = current.next;
+    current.next = temp;
+}
+        \end{minted}        
+        
+    \subsection*{Heap implementation}
+
+        The heap is a complete binary tree. This means that a node or heap at most has two children and all the levels, except maybe the last, are completely filled out. The concept of a heap is to eliminate the cost of traversing in a linear sequence by placing the node with the highest priority as our root node. The closer to our root node the higher the priority. There are two properties of the heap data structure, a max heap property consists of the nodes being of a greater key value than the children, whilst a min heap property implies that the node is of a smaller key value compared to its children. This assignment demands that the heap should be of a min-heap property, since the lower the priority value the higher the priority. 
+
+        \subsubsection*{Adding an element}
+
+            The idea of adding an element to a heap is different as opposed to adding an element to a binary tree. The condition as a first approach is to compare the value to the root node priority and swap accordingly, and we will just push down the root node further down the tree, either to the left or right branch.
+            
+            This implementation will result in an unbalanced tree, to which a heap should not be. To combat this we could account for the number of nodes in each sub-tree and add it to the sub-tree consisting of the least nodes. To account for this another data field, consisting of the number of nodes in the sub-tree, is added to our \texttt{Node} class and will be incremented for each traversal step, which keeps track of the current node that is being manipulated. The heap property is still violated, with the given prerequisites of the complete tree being filled from left to right. The following implementation will fill out the penultimate leveled nodes to have a balanced amount of children. 
+
+        \subsubsection*{Removing an element}
+
+            The removal of an element is the process of returning the value of the root node and promoting the node with the highest priority. The cases to consider are if the root is null, there are no elements to remove, and if the root is the only element in the binary heap, return the root value and declare the root to be null. The procedure consists of checking the right and left branches for a node. If there is no left branch the promotion will naturally be of our right branch, the same goes for the case of no right branch. If both consist of a valid node, the higher priority node of the two will be promoted. If the node that is promoted is a leaf, we will declare the pointer to the node as null, otherwise, we will traverse further and promote nodes accordingly, until we are at a leaf to declare as null. For every traversal we will decrement the amount of nodes of our current node, to account for the removal.
+
+        \subsubsection*{Incrementing root value}
+
+            The procedure of incrementing the root value is a common practice of a heap, where the root item is retrieved, given a new priority, and pushed down the tree. This is often done in this context since we might want to manipulate the item and give it a new priority before adding it to our queue. 
+            
+            For this assignment, the operation of \texttt{push} just increments the root value and pushes it down the tree, by comparing the values of the children, promoting the higher priority if the parent node is of a smaller priority. The second push operation calls to \texttt{remove} and \texttt{add} with our new incremented value. This implementation has the prerequisites of already established methods to call.
+
+    \subsection*{Heap array implementation}
+
+        An array representation of a heap is the most suitable implementation for a binary heap. The root element is the first element in our array. The children of the node in element $i$ index are represented through the mathematical expressions of $(2*i) + 1$ index as our left child and $(2*i) + 2$ index as our right child. This array representation of a heap ensures that the elements are filled out to an index of \textit{k} and to add an element we will insert it in the index of \textit{k} and increment the value of \textit{k}. This implementation ensures that the prerequisites of a complete tree are fulfilled.
+
+        \subsubsection*{Adding an element}
+
+            The \texttt{add} procedure consists of placing the node to an array in the index given by \textit{k}, and then incrementing \textit{k}. 
+            
+            The value could however be of a smaller value than our parent node. To solve this issue, the following procedure is in practice, swapping the node if the parent node is of a smaller priority. The parent node index of a node in index $i$ is retrieved through the expression of $(i-1)/2$, using integer logic will take the floor value of the expression if $i-1$ is of an uneven number. This procedure is then repeated if the parent node is of a lower priority or we are at our root node.
+
+        \subsubsection*{Removing an element}
+
+            The removal procedure consists of returning the root value and replacing the root with the last available element in the index of $k - 1$ and declaring the following index null. The tree is probably not a heap since the root is most likely of a larger value than its children. Therefore the procedure continues with comparing the branches and swapping the parent with the smaller child, either left or right. Until the principles of a binary heap are met.
+
+        \subsubsection*{Incrementing root value}
+
+            The procedure of incrementing a value is fairly simple in the array representation. The root value is incremented with the amount specified in the parameter value and then follows the same procedure of removing an element, where we compare the branches and swap the parent node in accordance with the conditions of the parent node being of a higher priority than its children.
+        
+\section*{Benchmarks}
+
+    There are two different benchmarks for this assignment. The first benchmark consists of comparing the two different approaches to the \texttt{add} and \texttt{remove} operations to the linked list implementation of the priority queue. The same benchmark also compares the execution time of our heap array implementation. The second benchmark consists of adding 1023 elements to a heap with a random order sequence of numbers between [0,10000] and then running a sequence of 10 \texttt{push} operations with the value of [10,100] incremented with 10. The push operation should return a value that represents the amount of levels that the operation needs to go to.
+    
+    \subsection*{Linked list and heap array}
+
+        The input sizes for the benchmark to the \texttt{add} and \texttt{remove} operations are between 100-1600 with an incremented value of 100. The following graph is of the two different approaches.
+        \begin{center}
+        \begin{tikzpicture}
+        \begin{axis}[
+            title={Execution time of the operation of \texttt{add} and \texttt{remove}},
+            xlabel={Amount of elements},
+            ylabel={Time given in \[\mu\]s},
+            xmin=0, xmax=1600,
+            ymin=0, ymax=5000,
+            xtick={0,200,400,600,800,1000,1200,1400,1600},
+            ytick={0,1,2,3,4},
+            legend pos=north west,
+            ymajorgrids=true,
+            grid style=dashed,
+        ]
+    
+        \addplot[
+        color=blue,
+        mark=square,
+        ]
+        coordinates {
+        (0,0)(100,30.9)(200,76)(300,168.1)(400,298.1)(500,405.4)(600,575.7)(700,785.3)(800,1021.3)(900,1294.6)(1000,1603.3)(1100,1985.7)(1200,2486.4)(1300,2971.7)(1400,3468.2)(1500,4048.2)(1600,4633.9)
+        };
+        \addlegendentry{$O(1)$ add and $O(n)$ remove}
+    
+        \addplot[
+        color=red,
+        mark=square,
+        ]
+        coordinates {
+        (0,0)(100,13)(200,24.7)(300,39.5)(400,78.6)(500,104.2)(600,129.6)(700,182.7)(800,207.2)(900,270.4)(1000,337.3)(1100,440.6)(1200,501.2)(1300,617.1)(1400,771.9)(1500,936.5)(1600,1152.3)
+        };
+        \addlegendentry{$O(n)$ add and $O(1)$ remove}
+
+        \addplot[
+        color=green,
+        mark=square,
+        ]
+        coordinates {
+        (0,0)(100,19.9)(200,19.2)(300,47.8)(400,43.9)(500,45.4)(600,50.6)(700,60.7)(800,77)(900,88.6)(1000,90.7)(1100,101.8)(1200,111.8)(1300,124.6)(1400,146.9)(1500,158.5)(1600,170.8)
+        };
+        \addlegendentry{Heap array}
+    
+        \end{axis}
+        \end{tikzpicture}
+        \end{center}
+        The graph suggests that the $O(n)$ add and $O(1)$ remove is preferable with regards to execution time in our linked list structure. However, the heap array implementation is a far more preferable implementation of a priority queue. 
+        
+    \subsection*{Heap}
+
+        The number of levels that were traversed with the given prerequisites specified in the introduction of the section Benchmarks were in the sequence of {0,2,4,4,4,3,3,4,4,3} levels. The first push operation consists of incrementing the root value and pushing it down the tree by comparing the branches to our current node and traversing it down accordingly. The second push operation consists of removing the highest priority with our established remove method, incrementing it, and adding the node with the incremented value to the binary tree. This push operation's depth bases the traversal on the last available leaf since our \texttt{add} method pushes the node to an empty branch, therefore the statistics for the traversal is always 9. This also makes sense since $\log 1024$ in the base of 2 is 10. As a last measurement, this benchmark also compares the heap array implementation to our linked structure.
+        
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{l|c|c}
+\textbf{Add and push} & \textbf{min time} & \textbf{ratio}\\
+\hline
+  Normal         & 73.2 µs & 1.00\\
+  Remove and add & 72.4 µs & 0.99\\
+  Array          & 56.5 µs & 0.77\\
+\end{tabular}
+\end{center}
+\end{table}
+        The table suggests that the normal push operation and the second push operation are nearly equivalent to each other. The array implementation equivalence of the push operation is far better compared to the normal push operation and the second push operation, where we remove and add the new priority, in our linked structure implementation of a heap. 
+        
+\section*{Conclusion}
+
+    A priority queue is a data structure that bases the elements on a priority value. The linked list implementation of a priority queue is  The heap is a binary tree implementation of a priority queue where the root is the item with the highest priority. There are two different approaches to creating a heap, a standard binary tree heap that only holds the root node as a data field, and an array representation of a binary tree heap. The array representation of the heap is an easy way to implement a heap and turns out to be an efficient implementation of a binary heap tree, whilst also taking into account a creating complete binary tree.
+    
+\end{document}

@@ -1,0 +1,168 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\begin{document}
+
+\title{
+    \textbf{Sorting}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will explore different sorting algorithms. We will work with three different sorting algorithms, being selection sort, insertion sort, and merge sort. We will discover the pros and cons of each sorting algorithm whilst discussing its time complexity. The given context is to determine an optimal way to sort an array.
+
+\section*{Selection sort}
+
+    The selection sort algorithm is an easy approach to sorting an array. The algorithm involves searching for the smallest element in an unsorted part of an array, and swapping it with the first element in the unsorted part of the array. This is then later repeated until the array is sorted.
+
+    The algorithm takes one loop to select an element in the array, and one extra loop to compare with every other element in the array. Thus giving the time complexity at worst of $O(n^2)$, meaning the algorithm should scale in parallel with an exponential growth that is dependent on the array size.
+\begin{minted}{java}
+public static void selection_sort(int[] array) {
+    for (int i = 0; i < array.length - 1; i++) {
+        int cand = i;
+        for (int j = i + 1; j < array.length; j++) {
+            if (array[j] < array[cand]) {
+                cand = j;
+            }
+        }
+        int temp = array[i];
+        array[i] = array[cand];
+        array[cand] = temp;
+    }
+}
+\end{minted}
+    The following code is the code provided to implement the selection sort with a parameter value of the array to be sorted. 
+
+\section*{Insertion sort}
+
+    The insertion sort algorithm consists of comparing the current element with its predecessor and continuing to compare with its predecessors if the condition of being smaller is met. This is repeated for every element until the array is sorted.
+
+    The algorithm takes one loop to pick one element of the array and another loop to swap and place the element in its right position in the array. Thus the worst-case time complexity is of $O(n^2)$, meaning the algorithm should scale in parallel with an exponential growth that is dependent on the input size of n, in this case being the array size.
+\begin{minted}{java}
+public static void insertion_sort(int[] array) {
+    for (int i = 0; i < array.length; i++) {
+        int key = array[i];
+        int j = i - 1;
+        for (; j >= 0 && array[j] > key; j--) {                
+            array[j + 1] = array[j];            
+        }
+        array[j + 1] = key;
+    }
+}
+\end{minted}
+    The following code snippet is to implement insertion sort. The parameter value that is passed is the array to be sorted.
+        
+\section*{Merge sort}
+
+    Merge sort is a sorting algorithm that breaks down the array in half through recursions, sorts it, and merges the smaller parts back together. This is repeated until the array is sorted. The first process is breaking down the array into subarrays until each element is its separate subarray. Two subarrays are then merged together with sorting in consideration. This is later repeated until the merging of the whole array is finished, thus making the array sorted.
+
+    The time complexity of the merge sort is $O(n \log n)$. Breaking down the array into subarrays takes $O(\log n)$ and since it takes $O(n)$ to merge two halves, the time complexity is $O(n \log n)$. This meaning that merge sort will scale both linearly and logarithmically.
+
+\begin{minted}{java}
+private static void merge(int[] org, int[] aux, int lo, int mid, int hi) {
+    for (int i = lo; i <= hi; i++) {
+        aux[i] = org[i];
+    }
+    int i = lo; 
+    int j = mid + 1;
+    for (int k = lo; k <= hi; k++) {
+        if (i > mid) {
+            org[k] = aux[j];
+            j++;
+        }
+        else if (j > hi) {
+            org[k] = aux[i];
+            i++;
+        }
+        else if (aux[i] < aux[j]) {
+            org[k] = aux[i];
+            i++;
+        }
+        else {
+            org[k] = aux[j];
+            j++;
+        }
+    }
+}
+\end{minted}
+    The following code snippet is of merging two halves with each other.
+\begin{minted}{java}
+private static void merge_sort(int[] org, int[] aux, int lo, int hi) {
+    if (lo != hi) {
+        int mid = (lo + hi) / 2;
+        
+        merge_sort(org, aux, lo, mid);
+        
+        merge_sort(org, aux, mid + 1, hi);
+        
+        merge(org, aux, lo, mid, hi);
+    }
+}
+\end{minted}
+    The following code snippet is dividing to call for merge sort where we divide the array in half through recursion calls of \texttt{merge\_sort()} in \texttt{merge\_sort()}.
+
+\section*{Benchmark}
+
+    The benchmark tested the input sizes of 100-6400 sized arrays and multiplied with the $2^n$ until 6400. Every array that is passed through the methods is always unsorted and generated with random values. The following graph presents the best times of 100 turns for each sorting algorithm.
+    \begin{center}
+    \begin{tikzpicture}
+    \begin{axis}[
+        title={Execution time of each sorting algorithm},
+        xlabel={Amount of elements},
+        ylabel={Time given in \[\mu\]s},
+        xmin=0, xmax=1600,
+        ymin=0, ymax=600,
+        xtick={0,200,400,600,800,1000,1200,1400,1600},
+        ytick={0,100,200,300,400,500,600},
+        legend pos=north west,
+        ymajorgrids=true,
+        grid style=dashed,
+    ]
+
+    \addplot[
+    color=blue,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,15.3)(200,49)(300,19.4)(400,37)(500,60.1)(600,89.9)(700,169.6)(800,156.9)(900,200.6)(1000,240.4)(1100,290.2)(1200,342.3)(1300,402.8)(1400,464.2)(1500,542.8)(1600,599.4)
+    };
+    \addlegendentry{Selection sort}
+
+    \addplot[
+    color=red,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,8.3)(200,33.6)(300,63.5)(400,81.6)(500,26.5)(600,33.2)(700,55.3)(800,53.2)(900,72.1)(1000,87.9)(1100,102.8)(1200,122.2)(1300,142.4)(1400,164.1)(1500,193.3)(1600,212.4)
+    };
+    \addlegendentry{Insertion sort}
+
+    \addplot[
+    color=green,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,6)(200,5.7)(300,12)(400,15.1)(500,11.6)(600,18.5)(700,16.6)(800,19.5)(900,28.6)(1000,47.9)(1100,53.9)(1200,43.1)(1300,47.1)(1400,80.7)(1500,60.1)(1600,67.3)
+    };
+    \addlegendentry{Merge Sort}
+
+    \end{axis}
+    \end{tikzpicture}
+    \end{center}
+    
+    The following results suggest that the execution time for each sorting algorithm is somewhat parallel to their corresponding time complexity. The selection sort and insertion sort scale exponentially in parallel, with selection sort being far more drastic compared to insertion sort. Insertion sort is far more efficient than selection sort if the array is partially sorted since the comparison part of the insertion sort algorithm is far less than selection sort. The merge sort is scaling linearly and logarithmically with respect to the input size.
+    
+\section*{Conclusion}
+    
+    The conclusion given is that for smaller data, the choice for the sorting algorithm is not that significant. If insertion sort already has the prerequisites of passing an already sorted array, the benefit is a much better execution time with regards to selection and merge sort, the first being going through the whole array and the latter being dividing into subarrays. The prerequisites for the benchmarks take into consideration the arrays being unsorted every single time and thus the most optimal way out of the three provided is merge sort. 
+    
+\end{document}

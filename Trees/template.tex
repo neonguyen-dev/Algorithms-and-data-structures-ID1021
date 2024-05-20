@@ -1,0 +1,154 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\begin{document}
+
+\title{
+    \textbf{Binary tree}
+}
+\author{Neo Nguyen}
+\date{Fall 2023}
+
+\maketitle
+
+\section*{Introduction}
+
+    For this assignment, we will discover the data structure known as a binary tree. The data structure is of a tree-like structure and consists of nodes that at most consist of two link fields, referred to as left and right child. The structure starts with the topmost node, known as the root, and divides into branches until you reach the leaf, known as a node with no left or right children.
+
+    We will explore the implementation of the tree-like structure and determine its strengths and weaknesses, whilst also figuring out how to traverse through the tree from the first key to the last.
+    
+\section*{Binary tree}
+
+    A binary tree is a data structure that utilizes a tree-like structure and consists of elements known as nodes. The nodes of the binary tree consist of three fields, the first is for data, and the other two are referred to as link fields to other nodes in the structure and are named left and right child. The previous node is referred to as a parent node. The binary tree is represented by a pointer to the topmost node, known as the root, this is also the starting point of our data structure. The root is divided into two branches, each brand is then divided at maximum into two branches, and the following continues. 
+    
+    The link fields are assigned according to their key value since the prerequisites are of the out-most left node being the first in our data sequence. This implies that the larger key value is at the right position of our tree whilst the smaller key value is at the left position.   
+
+    \subsection*{Implementation}
+
+        The implementation of a binary tree consists of the pointer to our root. The root is declared when a call to the method \texttt{add(Integer key, Integer value)} is in practice. The condition for this is if the root reference of our binary tree is null, implying that there are no nodes present in our binary tree.
+\begin{minted}{java}
+public void add(Integer key, Integer value){
+    if(root == null)
+        root = new Node(key, value);
+    else
+        root.add(key, value);
+}
+\end{minted}
+        The following code snippet is of the \texttt{add(Integer key, Integer value)} in our class of \texttt{BinaryTree}. The method function consists of creating a leaf in accordance with the key value and therefore a call to the \texttt{add(Integer key, Integer value)} in our topmost node is made.
+\begin{minted}{java}
+public void add(Integer key, Integer value) {
+    if (this.key == key) {
+        this.value = value;
+        return;
+    }   
+    else if (this.key > key) {
+        if (left != null)
+            left.add(key, value);
+        else
+            left = new Node(key, value);
+    }
+    else if (this.key < key) {
+        if (right != null)
+            right.add(key, value);
+        else
+            right = new Node(key, value);
+    }
+}
+\end{minted}
+        The following code snippet is of the \texttt{add(Integer key, Integer value)} in our class of \texttt{Node}. This method utilizes recursion to get to the correct position of our tree. The conditions take into consideration the passed key value. If it is the same as our current node, the value is updated. If the current node's key value is of a bigger value and there is a left branch we will recursively call to enter the left child to check whether that is our right key value and the same logic applies if the key is smaller, implying that we should move to the right child. If there is no branch to continue on and the following conditions are applied, it implies that there should be a leaf of the key value in that position of our tree, and it will do so accordingly.
+
+        The following logic is applied to traverse through our tree through the method of \texttt{lookup(Integer key)}. Instead of recursion calls, we will first declare the current node to be of our root and we will update our current reference to either be the left child or right child, depending on our parameter value. This is then repeated to hopefully find a match of our given key value and return its data.
+        
+    \subsection*{Creating a binary tree with a given size}
+
+        With the add method now in practice, we can now construct our binary tree. The issue however is that the order of calls to the method and the key values we pass is important. If we pass an ordered sequence of key values to our method of adding for n amount of times, where n stands for the input size representing the size of the tree, we will just traverse and add on to our right branch and the structure is more of a linked list. 
+\begin{minted}{java}
+public static void createTree(BinaryTree tree, int a, int b) {
+    if (b < a) {
+        return;
+    }
+    tree.add((a + b) / 2, 1);
+    createTree(tree, a, (a + b) / 2 - 1);
+    createTree(tree, (a + b) / 2 + 1, b);
+}
+\end{minted}
+        To combat the following issue the following was implemented. The way the tree is constructed using this is through recursion. The \texttt{a} is the lowest possible key value, and \texttt{b} is our highest possible key value. The topmost node or root should always be of half the value of our given size, so if you wanted to create a binary of a thousand elements, the root's key value would be of the value 500. The left child should be the value of our lowest value plus the parent's key value divided in half minus 1. So for this example, it should be 125. The following continues to the lowest value of 1. The same logic applies to the right part of our tree, just that the lower bounds are of the lowest value plus the parent's key value divided in half plus 1 and the upper bound is of \texttt{b}. So to create a tree of 1000 elements we do the following call: \texttt{createTree(tree, 1, 1000)}.
+
+    \subsection*{Iterator}
+
+        An iterator is an object that can utilize a loop to process each element in a data structure. In the context of a binary tree, the process is a bit more complex than in a linked list for example. The traversal of the binary tree consists of first finding the outmost left node and its sibling to then return to the parent, but this process is a bit harder since there are no references to the parent from the children. The solution therefore is to push all the parent nodes to a stack and retrieve their values through the pop operation. The right child is taken into consideration and if there are left branches to store in our stack.
+\begin{minted}{java}
+@Override
+public boolean hasNext() {
+    return !stack.isEmpty();
+}
+
+@Override
+public Integer next() {
+    if(!hasNext()){
+        throw new NoSuchElementException();
+    }
+    Node node = stack.pop();
+    if(node.right != null){
+        Node current = node.right;
+        while(current != null){
+            stack.push(current);
+            current = current.left;
+        }
+    }
+    return node.key;
+}
+\end{minted}
+        The following code snippet is of the overridden operations of \texttt{hasNext()} and \texttt{next()} which are two predefined operations from the class of \texttt{Iterator}. To get the next in our collection the \texttt{next()} is called. The following code implementation is of \textit{depth-first traversal}.
+
+\section*{Benchmarks and conclusion}
+
+    The benchmarks that are measured for this assignment are of the \texttt{lookup()} method and how it compares to the previous assignment of binary search in a sorted array. The prerequisites are searching through for n amount of elements, where n stands for the input size. The following graphs present the following two benchmarks.
+
+    \begin{center}
+    \begin{tikzpicture}
+    \begin{axis}[
+        title={Execution time of operations},
+        xlabel={Amount of elements},
+        ylabel={Time given in \[\mu\]s},
+        xmin=0, xmax=1600,
+        ymin=0, ymax=80,
+        xtick={0,200,400,600,800,1000,1200,1400,1600},
+        ytick={0,20,40,60,80},
+        legend pos=north west,
+        ymajorgrids=true,
+        grid style=dashed,
+    ]
+
+    \addplot[
+    color=blue,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,8.5)(200,18.2)(300,27.2)(400,25.9)(500,32.8)(600,53.3)(700,49.1)(800,68.1)(900,71.4)(1000,74.6)(1100,65.9)(1200,53.2)(1300,60.6)(1400,65)(1500,69.6)(1600,76.6)
+    };
+    \addlegendentry{Binary tree lookup}
+
+    \addplot[
+    color=red,
+    mark=square,
+    ]
+    coordinates {
+    (0,0)(100,5.8)(200,8.2)(300,4.5)(400,16.1)(500,21.2)(600,11.6)(700,14.9)(800,22)(900,29)(1000,33)(1100,42.9)(1200,46.8)(1300,54.3)(1400,60.7)(1500,64.6)(1600,71.9)
+    };
+    \addlegendentry{Binary search}
+
+    \end{axis}
+    \end{tikzpicture}
+    \end{center}
+        
+    \subsection*{Time complexities}
+
+        The binary tree lookup's runtime is dependent on the height of the tree since that is the factor of how far we traverse through the tree. For example, if the element that is passed in the parameter is at the height position of 3, it takes us three steps to reach the following element to return. The general time complexity for this could be explained through the big O-notation of $O(h)$ where h stands for height. If the tree is balanced the $h$, to which ours are, would be expressed as $\log(n)$ instead, where n stands for the size of the data structure. The following is the time complexity for this operation with regard to size: $O(\log n)$. The same time complexity as our binary search.
+    
+\end{document}
